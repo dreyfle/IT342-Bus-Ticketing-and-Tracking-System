@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import LandingPage from './pages/LandingPage';
 import { UserProvider } from './context/UserContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AppRoutes from './routes/AppRoutes';
 
 
 function App() {
@@ -12,17 +11,7 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <UserProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            
-            <Route path="/home" element={<div>Home Page</div>} />
-            
-
-        
-        
-          </Routes>
-        </Router>
+        <AppRoutes />
       </UserProvider>
     </GoogleOAuthProvider>
   );

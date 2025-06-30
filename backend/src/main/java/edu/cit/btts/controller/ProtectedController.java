@@ -23,6 +23,9 @@ public class ProtectedController {
     Map<String, String> data = new HashMap<>();
     data.put("message", "This is protected data for " + username + "!");
     data.put("secretInfo", "Only authenticated users can see this.");
+    data.put("authorities", authentication.getAuthorities().toArray()[0].toString());
     return ResponseEntity.ok(data);
   }
+
+
 }

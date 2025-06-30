@@ -20,8 +20,14 @@ public class User {
   @Column(name = "last_name") // Maps to a column named 'last_name'
   private String lastName;
 
+  @Enumerated(EnumType.STRING) // Store enum name as a string in the DB
+  @Column(nullable = false)
+  private Role role; // New field for user role
+
   // Default constructor for JPA
   public User() {
+    // Default role for new users if not specified, e.g., PASSENGER
+    this.role = Role.PASSENGER;
   }
 
   // Constructor for creating new users from Google login data
@@ -29,6 +35,15 @@ public class User {
     this.email = email;
     this.firstName = firstName;
     this.lastName = lastName;
+    this.role = Role.PASSENGER; // Default new users to PASSENGER role
+  }
+
+  // Constructor with role for specific cases if needed
+  public User(String email, String firstName, String lastName, Role role) {
+    this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.role = role;
   }
 
   // Getters and Setters for all fields
@@ -58,6 +73,14 @@ public class User {
 
   public void setLastName(String lastName) {
     this.lastName = lastName;
+  }
+
+  public Role getRole() { // New getter
+    return role;
+  }
+
+  public void setRole(Role role) { // New setter
+    this.role = role;
   }
 
   @Override

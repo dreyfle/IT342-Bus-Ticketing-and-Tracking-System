@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useUser } from '../context/UserContext';
 
 export default function LandingPage() {
-  const {user, setUser} = useUser();
+  const {user, setUser, role, setRole} = useUser();
   const [jwtToken, setJwtToken] = useState(localStorage.getItem('jwtToken'));
   const [protectedData, setProtectedData] = useState(null);
   const [error, setError] = useState(null);
@@ -27,13 +27,14 @@ export default function LandingPage() {
         idToken: credentialResponse.credential // This is the id_token
       });
 
-      console.log('Backend response:', response.data);
-      const { token, user: backendUser } = response.data; // Assuming backend returns {token: "...", user: {...}}
+      // console.log('Backend response:', response.data);
+      const { token, user: backendUser, role } = response.data; // Assuming backend returns {token: "...", user: {...}}
 
       if (token) {
         localStorage.setItem('jwtToken', token);
         setJwtToken(token);
         setUser(backendUser); // Set user info from backend
+        setRole(role);
         setError(null);
         // Now that we have the JWT, try fetching protected data
         fetchProtectedData();
@@ -61,6 +62,7 @@ export default function LandingPage() {
     localStorage.removeItem('jwtToken'); // Clear our JWT
     setJwtToken(null);
     setUser(null);
+    setRole(null);
     setProtectedData(null);
     setError(null);
     console.log('Logged out');
