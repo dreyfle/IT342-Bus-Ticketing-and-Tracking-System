@@ -2,12 +2,15 @@ package edu.cit.btts.service;
 
 import edu.cit.btts.model.User;
 import edu.cit.btts.repository.UserRepository;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -35,10 +38,14 @@ public class JwtUserDetailsService implements UserDetailsService {
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     User user = userRepository.findByEmail(email)
       .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    // Create a GrantedAuthority from the user's role
+    GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getAuthorityName());
 
       // Spring Security's UserDetails expects a password (even if empty for OAuth users).
       // For JWT, the password is not used after the token is issued.
-    return new org.springframework.security.core.userdetails.User(user.getEmail(), "",
-      new ArrayList<>()); // Empty list for authorities/roles for now
+    return new org.springframework.security.core.userdetails.User(
+      user.getEmail(), 
+      "",
+      Collections.singletonList(authority)); // Empty list for authorities/roles for now
   }
 }
