@@ -93,47 +93,95 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="p-5 font-sans"> {/* Outer container: padding, font family */}
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Bus Ticketing and Tracking System (BTTS)</h1>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 flex items-center justify-center p-4">
       {!jwtToken ? (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Login with Google</h2>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            useOneTap
-            locale="en"
-          />
-          {error && <p className="text-red-500 mt-4">{error}</p>}
+        // Login Layout
+        <div className="w-full max-w-4xl flex bg-white rounded-2xl shadow-2xl overflow-hidden">
+          {/* Left Side - Title */}
+          <div className="flex-1 flex items-center justify-center p-12 bg-gray-50">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-gray-800 leading-tight">
+                Bus Ticketing and<br />
+                Tracking System<br />
+                <span className="text-blue-600">(BTTS)</span>
+              </h1>
+            </div>
+          </div>
+          
+          {/* Right Side - Login */}
+          <div className="flex-1 flex items-center justify-center p-12 bg-gray-200">
+            <div className="w-full max-w-sm">
+              <div className="bg-white rounded-2xl p-8 shadow-lg">
+                <h2 className="text-xl font-semibold text-center text-gray-700 mb-6">
+                  Sign in with Google
+                </h2>
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    useOneTap
+                    locale="en"
+                    theme="outline"
+                    size="large"
+                    width="300"
+                  />
+                </div>
+                {error && (
+                  <p className="text-red-500 text-sm text-center mt-4">{error}</p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Welcome, {user ? user.email : 'User'}!</h2>
-          <p className="text-gray-600 mb-4">You are logged in with your custom JWT.</p>
-          <button
-            onClick={handleLogout}
-            className="px-5 py-2 bg-red-500 text-white rounded-md cursor-pointer hover:bg-red-600 transition-colors duration-200"
-          >
-            Logout
-          </button>
+        // Dashboard Layout
+        <div className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl p-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Bus Ticketing and Tracking System (BTTS)
+            </h1>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-700">
+                Welcome, {user ? user.email : 'User'}!
+              </h2>
+              <button
+                onClick={handleLogout}
+                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium"
+              >
+                Logout
+              </button>
+            </div>
+            <p className="text-gray-600 mt-2">You are logged in with your custom JWT.</p>
+          </div>
 
-          <h3 className="text-xl font-semibold mt-8 mb-4 text-gray-700">Protected Data Area</h3>
-          <p className="text-gray-600 mb-4">This data is fetched using your custom JWT.</p>
-          {protectedData ? (
-            <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-sm text-gray-800">
-              {JSON.stringify(protectedData, null, 2)}
-            </pre>
-          ) : (
-            <p className="text-gray-500">No protected data fetched yet or an error occurred.</p>
-          )}
-          <button
-            onClick={fetchProtectedData}
-            className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md cursor-pointer hover:bg-green-600 transition-colors duration-200"
-          >
-            Refresh Protected Data
-          </button>
-          {error && <p className="text-red-500 mt-4">{error}</p>}
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-700">Protected Data Area</h3>
+              <button
+                onClick={fetchProtectedData}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
+              >
+                Refresh Data
+              </button>
+            </div>
+            <p className="text-gray-600 mb-4">This data is fetched using your custom JWT.</p>
+            
+            {protectedData ? (
+              <pre className="bg-white p-4 rounded-lg border text-sm text-gray-800 overflow-auto max-h-64">
+                {JSON.stringify(protectedData, null, 2)}
+              </pre>
+            ) : (
+              <div className="bg-white p-4 rounded-lg border">
+                <p className="text-gray-500">No protected data fetched yet or an error occurred.</p>
+              </div>
+            )}
+            
+            {error && (
+              <p className="text-red-500 mt-4 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+                {error}
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>
