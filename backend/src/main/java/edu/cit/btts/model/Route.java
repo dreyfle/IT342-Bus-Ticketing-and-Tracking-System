@@ -1,6 +1,9 @@
 package edu.cit.btts.model;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -16,11 +19,13 @@ public class Route {
     @Column(name = "destination", nullable = false, length = 100)
     private String destination;
 
-    @Column(name = "stops", length = 500) // Consider a separate Stops entity if complex
-    private String stops; // A comma-separated string of stop names, or JSON if complex
-
-    @Column(name = "pricing", nullable = false)
-    private Double pricing; // Base fare for this route
+    @ElementCollection(fetch = FetchType.LAZY) // Stores collection of basic types
+    @CollectionTable(name = "route_stops", joinColumns = @JoinColumn(name = "route_id")) // Defines the join table
+    @Column(name = "stop_name", length = 100) // Column in the route_stops table
+    private List<String> stops = new ArrayList<>(); // Initialize to prevent NullPointerException
+    
+    @Column(name = "base_price", nullable = false)
+    private Double basePrice; // Base fare for this route
 
     // A Route will have 1 Trip
     @OneToOne(mappedBy = "route", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -29,11 +34,11 @@ public class Route {
     public Route() {
     }
 
-    public Route(String origin, String destination, String stops, Double pricing) {
+    public Route(String origin, String destination, List<String> stops, Double basePrice) {
         this.origin = origin;
         this.destination = destination;
-        this.stops = stops;
-        this.pricing = pricing;
+        this.stops = stops != null ? new ArrayList<String>(stops) : new ArrayList<String>();
+        this.basePrice = basePrice;
     }
 
     // Getters and Setters
@@ -61,20 +66,20 @@ public class Route {
         this.destination = destination;
     }
 
-    public String getStops() {
+    public List<String> getStops() {
         return stops;
     }
 
-    public void setStops(String stops) {
-        this.stops = stops;
+    public void setStops(List<String> stops) {
+        this.stops = stops != null ? new ArrayList<>(stops) : new ArrayList<>(); // Defensive copy
     }
 
-    public Double getPricing() {
-        return pricing;
+    public Double getBasePrice() {
+        return basePrice;
     }
 
-    public void setPricing(Double pricing) {
-        this.pricing = pricing;
+    public void setBasePrice(Double basePrice) {
+        this.basePrice = basePrice;
     }
 
     public Trip getTrip() {
@@ -112,7 +117,8 @@ public class Route {
                 "id=" + id +
                 ", origin='" + origin + '\'' +
                 ", destination='" + destination + '\'' +
-                ", pricing=" + pricing +
+                ", basePrice=" + basePrice +
+                ", stops=" + stops +
                 '}';
     }
 }

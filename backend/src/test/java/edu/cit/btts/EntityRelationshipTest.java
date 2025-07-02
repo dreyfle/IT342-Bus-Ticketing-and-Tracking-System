@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,7 +50,7 @@ public class EntityRelationshipTest {
 
         // --- 3. Create and Save Route ---
         System.out.println("\n--- 3. Creating and Saving a Route ---");
-        Route route = new Route("Cebu City", "Manila", "Ormoc, Tacloban", 1500.00);
+        Route route = new Route("Cebu City", "Manila", List.of("Ormoc", "Tacloban"), 1500.00);
         route = routeRepository.save(route);
         assertNotNull(route.getId(), "Route should have an ID after saving.");
         System.out.println("Saved Route: " + route);
@@ -116,7 +117,7 @@ public class EntityRelationshipTest {
         Seat refreshedSeat1ForTicket = seatRepository.findById(seat1.getId()).get();
         Trip refreshedTripForTicket = tripRepository.findById(trip.getId()).get();
 
-        Double ticketFare = route.getPricing();
+        Double ticketFare = route.getBasePrice();
         String dropOffLocation = "Tacloban";
         Ticket ticket = new Ticket(refreshedSeat1ForTicket, refreshedTripForTicket, ticketFare, dropOffLocation, testUser);
         ticket = ticketRepository.save(ticket);
