@@ -1,7 +1,12 @@
 {
   "files": [],
   "references": [
-    
+    { "path": "./src/components" },
+    { "path": "./src/context" },
+    { "path": "./src/hooks" },
+    { "path": "./src/pages" },
+    { "path": "./src/routes" },
+    { "path": "./src/utils" }
   ],
   "compilerOptions": {
     "baseUrl": ".",
