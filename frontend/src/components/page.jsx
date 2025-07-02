@@ -9,3 +9,7 @@ export default function Page() {
 export default function Page() {
   return <TicketBooking />
 }
+export default function Home() {
+  return <PassengerHomePage />
+}
+
