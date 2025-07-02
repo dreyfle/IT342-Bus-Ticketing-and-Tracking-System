@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/google';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
+import { Navigate } from 'react-router-dom';
 
 export default function LandingPage() {
   const {user, setUser, role, setRole} = useUser();
@@ -134,56 +135,18 @@ export default function LandingPage() {
           </div>
         </div>
       ) : (
-        // Dashboard Layout
-        <div className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl p-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Bus Ticketing and Tracking System (BTTS)
-            </h1>
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-700">
-                Welcome, {user ? user.email : 'User'}!
-              </h2>
-              <button
-                onClick={handleLogout}
-                className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium"
-              >
-                Logout
-              </button>
-            </div>
-            <p className="text-gray-600 mt-2">You are logged in with your custom JWT.</p>
-          </div>
-
-          <div className="bg-gray-50 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-700">Protected Data Area</h3>
-              <button
-                onClick={fetchProtectedData}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium"
-              >
-                Refresh Data
-              </button>
-            </div>
-            <p className="text-gray-600 mb-4">This data is fetched using your custom JWT.</p>
-            
-            {protectedData ? (
-              <pre className="bg-white p-4 rounded-lg border text-sm text-gray-800 overflow-auto max-h-64">
-                {JSON.stringify(protectedData, null, 2)}
-              </pre>
-            ) : (
-              <div className="bg-white p-4 rounded-lg border">
-                <p className="text-gray-500">No protected data fetched yet or an error occurred.</p>
-              </div>
-            )}
-            
-            {error && (
-              <p className="text-red-500 mt-4 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
-                {error}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+        role && (
+          role === "PASSENGER" ? (
+            <Navigate to="/passenger-home" replace />
+          ) : role === "TICKET_STAFF" ? (
+            <Navigate to="/staff-home" replace />
+          ) : role === "TRANSIT_ADMIN" ? (
+            <Navigate to="/admin-home" replace />
+          ) : (
+            <Navigate to="/unauthorized" replace />
+          )
+        )
+    )}
     </div>
   );
 }

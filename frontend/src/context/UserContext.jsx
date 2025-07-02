@@ -1,3 +1,4 @@
+import { googleLogout } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { createContext, useState, useEffect, useContext, useMemo } from 'react';
 
@@ -8,6 +9,13 @@ const UserContext = createContext(null);
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
+
+  const logout = () => {
+    googleLogout();
+    localStorage.removeItem('jwtToken');
+    setUser(null);
+    setRole(null);
+  }
 
   // 3. Load user data from localStorage on mount
   useEffect(() => {
@@ -41,7 +49,7 @@ export const UserProvider = ({ children }) => {
   const isAuthenticated = useMemo(() => !!user, [user]);
 
   return (
-    <UserContext.Provider value={{ user, setUser, role, setRole, isAuthenticated }}>
+    <UserContext.Provider value={{ user, setUser, role, setRole, isAuthenticated, logout }}>
       {children}
     </UserContext.Provider>
   );
