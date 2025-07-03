@@ -11,4 +11,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
   // Custom method to find a user by email. Spring Data JPA automatically implements this.
   Optional<User> findByEmail(String email);
+  Optional<User> findByEmailIgnoreCase(String email); // Optional: for case-insensitive lookup
 }

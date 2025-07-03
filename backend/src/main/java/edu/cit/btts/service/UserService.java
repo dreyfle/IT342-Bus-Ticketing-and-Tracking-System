@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import edu.cit.btts.dto.UserDTO;
 import edu.cit.btts.model.Role;
 import edu.cit.btts.model.User;
 import edu.cit.btts.repository.UserRepository;
@@ -36,5 +37,10 @@ public class UserService {
     } else {
         return false;
     }
+  }
+
+  public UserDTO mapEntityToDto(User user) {
+    if (user == null) return null;
+    return new UserDTO(user.getId(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRole());
   }
 }

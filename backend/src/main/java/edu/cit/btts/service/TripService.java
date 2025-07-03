@@ -177,7 +177,7 @@ public class TripService {
   }
 
   // --- Helper Method for Entity -> Response DTO Mapping ---
-  private TripResponse mapEntityToDto(Trip trip) { // Changed return type
+  public TripResponse mapEntityToDto(Trip trip) { // Changed return type
     if (trip == null) return null;
 
     BusDTO busDetails = (trip.getBus() != null) ? busService.mapEntityToDto(trip.getBus()) : null;

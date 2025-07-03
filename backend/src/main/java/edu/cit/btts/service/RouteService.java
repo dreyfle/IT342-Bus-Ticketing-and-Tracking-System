@@ -30,10 +30,10 @@ public class RouteService {
      */
     public RouteDTO createRoute(RouteDTO routeDTO) {
         // Business logic: Check for existing route with same origin and destination
-        if (routeRepository.findByOriginAndDestination(routeDTO.getOrigin(), routeDTO.getDestination()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Route from '" + routeDTO.getOrigin() + "' to '" + routeDTO.getDestination() + "' already exists.");
-        }
+        // if (routeRepository.findByOriginAndDestination(routeDTO.getOrigin(), routeDTO.getDestination()).isPresent()) {
+        //     throw new ResponseStatusException(HttpStatus.CONFLICT,
+        //             "Route from '" + routeDTO.getOrigin() + "' to '" + routeDTO.getDestination() + "' already exists.");
+        // }
 
         Route route = new Route();
         mapDtoToEntity(routeDTO, route); // Map DTO fields to the new Route entity
