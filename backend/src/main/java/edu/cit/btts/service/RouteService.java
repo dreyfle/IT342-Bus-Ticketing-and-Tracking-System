@@ -117,7 +117,7 @@ public class RouteService {
     // --- Helper Methods for DTO <-> Entity Mapping (private to the service) ---
 
     // Converts a Route entity to a RouteDTO
-    private RouteDTO mapEntityToDto(Route route) {
+    public RouteDTO mapEntityToDto(Route route) {
         if (route == null) return null;
         return new RouteDTO(
                 route.getId(),
@@ -129,7 +129,7 @@ public class RouteService {
     }
 
     // Maps fields from a RouteDTO to a Route entity
-    private void mapDtoToEntity(RouteDTO routeDTO, Route route) {
+    public void mapDtoToEntity(RouteDTO routeDTO, Route route) {
         // ID is not mapped from DTO to entity here as it's typically set by JPA or path variable
         route.setOrigin(routeDTO.getOrigin());
         route.setDestination(routeDTO.getDestination());
