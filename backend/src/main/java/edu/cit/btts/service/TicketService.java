@@ -3,14 +3,20 @@ package edu.cit.btts.service;
 import edu.cit.btts.dto.TicketRequest;
 import edu.cit.btts.dto.TicketResponse;
 import edu.cit.btts.dto.TicketUpdateRequest;
+import edu.cit.btts.dto.PaymentRequest;
+import edu.cit.btts.dto.PaymentResponse;
 import edu.cit.btts.dto.SeatDTO;
 import edu.cit.btts.dto.TripResponse;
 import edu.cit.btts.dto.UserDTO;
+import edu.cit.btts.model.Payment;
+import edu.cit.btts.model.PaymentPurpose;
+import edu.cit.btts.model.PaymentType;
 import edu.cit.btts.model.Seat;
 import edu.cit.btts.model.SeatStatus;
 import edu.cit.btts.model.Ticket;
 import edu.cit.btts.model.Trip;
 import edu.cit.btts.model.User;
+import edu.cit.btts.repository.PaymentRepository;
 import edu.cit.btts.repository.SeatRepository;
 import edu.cit.btts.repository.TicketRepository;
 import edu.cit.btts.repository.TripRepository;
@@ -22,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,14 +42,18 @@ public class TicketService {
   private final SeatService seatService; // For mapping Seat to SeatDTO
   private final TripService tripService; // For mapping Trip to TripResponse (assuming you have one)
   private final UserService userService; // For mapping User to UserDTO (assuming you have one)
+  private final PaymentService paymentService;
+  private final PaymentRepository paymentRepository;
 
   public TicketService(TicketRepository ticketRepository,
                         SeatRepository seatRepository,
                         TripRepository tripRepository,
                         UserRepository userRepository,
                         SeatService seatService,
-                        TripService tripService, // Inject TripService
-                        UserService userService) { // Inject UserService
+                        TripService tripService, 
+                        UserService userService,
+                        PaymentService paymentService,
+                        PaymentRepository paymentRepository) {
     this.ticketRepository = ticketRepository;
     this.seatRepository = seatRepository;
     this.tripRepository = tripRepository;
@@ -50,18 +61,56 @@ public class TicketService {
     this.seatService = seatService;
     this.tripService = tripService;
     this.userService = userService;
+    this.paymentService = paymentService;
+    this.paymentRepository = paymentRepository;
   }
 
-  /**
-   * Creates a new Ticket.
-   * Ensures the selected seat is available for the given trip and updates its status.
+/**
+   * Creates a new Ticket and a new Seat, handling cash payment.
    *
    * @param request The ticket creation request data.
    * @return The created TicketResponse.
-   * @throws ResponseStatusException if Trip, Seat, or User not found, or Seat is unavailable.
    */
   @Transactional
-  public TicketResponse createTicket(TicketRequest request) {
+  public TicketResponse createTicketForCash(TicketRequest request) {
+    // Validate payment type explicitly for this method
+    if (request.getPaymentType() != PaymentType.CASH) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This endpoint is for CASH payments only.");
+    }
+    if (request.getOnlineReceipt() != null && request.getOnlineReceipt().length > 0) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cash payments should not include an online receipt.");
+    }
+
+    return createTicketInternal(request, null); // Pass null for online receipt
+  }
+
+  /**
+   * Creates a new Ticket and a new Seat, handling online payment.
+   *
+   * @param request The ticket creation request data.
+   * @return The created TicketResponse.
+   */
+  @Transactional
+  public TicketResponse createTicketForOnline(TicketRequest request) {
+    // Validate payment type explicitly for this method
+    if (request.getPaymentType() != PaymentType.ONLINE) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This endpoint is for ONLINE payments only.");
+    }
+    if (request.getOnlineReceipt() == null || request.getOnlineReceipt().length == 0) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Online receipt is required for online payments.");
+    }
+
+    return createTicketInternal(request, request.getOnlineReceipt());
+  }
+
+  /**
+   * Internal helper method for creating Ticket and Seat, and recording Payment.
+   *
+   * @param request The common ticket request data.
+   * @param onlineReceiptBytes The byte array for online receipt (null for cash).
+   * @return The created TicketResponse.
+   */
+  private TicketResponse createTicketInternal(TicketRequest request, byte[] onlineReceiptBytes) {
     // 1. Fetch Trip
     Trip trip = tripRepository.findById(request.getTripId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -74,24 +123,28 @@ public class TicketService {
 
     // 3. Check if a seat at this position already exists for this trip
     seatRepository.findByTripAndRowPositionAndColumnPosition(
-            trip, request.getRowPosition(), request.getColumnPosition())
-              .ifPresent(existingSeat -> {
+                    trip, request.getRowPosition(), request.getColumnPosition())
+            .ifPresent(existingSeat -> {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,
                         "Seat at Row: " + request.getRowPosition() + ", Column: " + request.getColumnPosition() +
                                 " already exists and is " + existingSeat.getStatus() + " for Trip ID " + request.getTripId());
-              });
-
+            });
 
     // 4. Create a new Seat
     Seat newSeat = new Seat(request.getRowPosition(), request.getColumnPosition(), trip);
-    newSeat.setStatus(SeatStatus.BOOKED); // Mark as booked immediately
+    if (request.getPaymentType() == PaymentType.CASH) {
+      newSeat.setStatus(SeatStatus.BOOKED); // Cash payment, immediately BOOKED
+    } else if (request.getPaymentType() == PaymentType.ONLINE) {
+      newSeat.setStatus(SeatStatus.RESERVED); // Online payment, initially RESERVED
+    } else {
+      // Fallback or error if payment type is unexpected (though validation should catch this)
+      newSeat.setStatus(SeatStatus.OPEN); // Default to OPEN or throw error
+    }
 
     // 5. Save the new Seat
     Seat savedSeat = seatRepository.save(newSeat);
 
     // 6. Create Ticket entity
-    // The Ticket's constructor needs to be updated or use setters if you want to assign the seat after creation.
-    // Assuming Ticket constructor takes Seat, Trip, Fare, DropOff, User
     Ticket ticket = new Ticket(savedSeat, trip, request.getFare(), request.getDropOff(), user);
 
     // 7. Save Ticket (This establishes the seat_id foreign key on the ticket)
@@ -99,9 +152,19 @@ public class TicketService {
 
     // 8. Update the savedSeat to link it back to the ticket (bidirectional consistency)
     savedSeat.setTicket(savedTicket);
-    seatRepository.save(savedSeat); // Re-save to update the ticket reference on the seat (if not cascaded from ticket)
+    seatRepository.save(savedSeat);
 
-    // 9. Return Response DTO
+    // 9. Create Payment for the ticket
+    PaymentRequest paymentRequest = new PaymentRequest();
+    paymentRequest.setAmount(BigDecimal.valueOf(request.getFare())); // Use ticket fare as payment amount
+    paymentRequest.setType(request.getPaymentType());
+    paymentRequest.setPurpose(PaymentPurpose.TICKET_FARE); // Always Ticket Fare for initial booking
+    paymentRequest.setOnlineReceipt(onlineReceiptBytes); // Pass the receipt bytes
+    paymentRequest.setTicketId(savedTicket.getId()); // Link to the newly created ticket
+
+    paymentService.createPayment(paymentRequest); // Delegate payment creation to PaymentService
+
+    // 10. Return Response DTO
     return mapEntityToDto(savedTicket);
   }
 
@@ -274,14 +337,36 @@ public class TicketService {
     SeatDTO seatDetails = (ticket.getSeat() != null) ? seatService.mapEntityToDto(ticket.getSeat()) : null;
     TripResponse tripDetails = (ticket.getTrip() != null) ? tripService.mapEntityToDto(ticket.getTrip()) : null; // Assumes tripService.mapEntityToDto exists
     UserDTO userDetails = (ticket.getUser() != null) ? userService.mapEntityToDto(ticket.getUser()) : null; // Assumes userService.mapEntityToDto exists
-
+    List<PaymentResponse> paymentResponses = paymentRepository.findByTicketId(ticket.getId()).stream()
+            .map(this::mapPaymentEntityToDto) // Use a helper method to map Payment to PaymentResponse
+            .collect(Collectors.toList());
+    
     return new TicketResponse(
       ticket.getId(),
       ticket.getFare(),
       ticket.getDropOff(),
       seatDetails,
       tripDetails,
-      userDetails
+      userDetails,
+      paymentResponses 
     );
+  }
+
+  // NEW: Helper method to map Payment entity to PaymentResponse DTO
+  // This method is a duplicate of the one in PaymentService, but it's good to have it here
+  // if PaymentService's method is not public or you want to control the mapping within TicketService.
+  // If you prefer, you could make PaymentService's mapEntityToDto public and call paymentService.mapEntityToDto(payment)
+  private PaymentResponse mapPaymentEntityToDto(Payment payment) {
+      if (payment == null) return null;
+      return new PaymentResponse(
+              payment.getId(),
+              payment.getAmount(),
+              payment.getStatus(),
+              payment.getType(),
+              payment.getPurpose(),
+              payment.getDate(),
+              payment.getOnlineReceipt(),
+              payment.getTicket() != null ? payment.getTicket().getId() : null
+      );
   }
 }

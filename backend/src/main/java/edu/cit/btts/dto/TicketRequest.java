@@ -2,6 +2,7 @@ package edu.cit.btts.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import edu.cit.btts.model.PaymentType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -29,6 +30,13 @@ public class TicketRequest {
   @NotNull(message = "User ID cannot be null")
   @Positive(message = "User ID must be positive")
   private Long userId; // The passenger buying the ticket
+
+  @NotNull(message = "Payment type is required.")
+  private PaymentType paymentType;
+
+  // This will be base64 encoded string if sent via JSON for online payments.
+  // It's optional for cash.
+  private byte[] onlineReceipt;
 
   // Getters and Setters
   public Integer getRowPosition() {
@@ -78,4 +86,11 @@ public class TicketRequest {
   public void setUserId(Long userId) {
     this.userId = userId;
   }
+  
+  public PaymentType getPaymentType() { return paymentType; }
+  public void setPaymentType(PaymentType paymentType) { this.paymentType = paymentType; }
+
+  public byte[] getOnlineReceipt() { return onlineReceipt; }
+  public void setOnlineReceipt(byte[] onlineReceipt) { this.onlineReceipt = onlineReceipt; }
+
 }

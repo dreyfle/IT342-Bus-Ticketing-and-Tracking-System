@@ -30,20 +30,32 @@ public class TicketController {
   }
 
   /**
-   * Creates a new Ticket.
-   * Accessible by TRANSIT_ADMIN and TICKET_STAFF.
-   *
-   * @param request The Ticket data to create.
-   * @return ResponseEntity with the created TicketResponse and success message.
-   */
-  @PostMapping
-  @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF')")
-  public ResponseEntity<ApiResponse> createTicket(@Valid @RequestBody TicketRequest request) {
-    TicketResponse createdTicket = ticketService.createTicket(request);
-    return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(new ApiResponse(true, "Ticket created successfully.", createdTicket));
-  }
+     * Creates a new Ticket and Seat with a CASH payment.
+     * Accessible by ADMIN, STAFF, and PASSENGER roles.
+     *
+     * @param request The ticket creation request data.
+     * @return ResponseEntity with the created TicketResponse.
+     */
+    @PostMapping("/cash") // Specific endpoint for cash payments
+    @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF', 'PASSENGER')")
+    public ResponseEntity<ApiResponse> createTicketCash(@Valid @RequestBody TicketRequest request) {
+        TicketResponse ticket = ticketService.createTicketForCash(request);
+        return new ResponseEntity<>(new ApiResponse(true, "Ticket created successfully with cash payment.", ticket), HttpStatus.CREATED);
+    }
+
+    /**
+     * Creates a new Ticket and Seat with an ONLINE payment.
+     * Accessible by ADMIN, STAFF, and PASSENGER roles.
+     *
+     * @param request The ticket creation request data.
+     * @return ResponseEntity with the created TicketResponse.
+     */
+    @PostMapping("/online") // Specific endpoint for online payments
+    @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF', 'PASSENGER')")
+    public ResponseEntity<ApiResponse> createTicketOnline(@Valid @RequestBody TicketRequest request) {
+        TicketResponse ticket = ticketService.createTicketForOnline(request);
+        return new ResponseEntity<>(new ApiResponse(true, "Ticket created successfully with online payment.", ticket), HttpStatus.CREATED);
+    }
 
   /**
    * Retrieves all Tickets.

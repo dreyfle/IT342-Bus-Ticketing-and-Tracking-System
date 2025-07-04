@@ -71,7 +71,7 @@ public class SecurityConfig {
     // Replace with your frontend URL(s)
     config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:5173"));
     config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     source.registerCorsConfiguration("/**", config);
     return source;
   }

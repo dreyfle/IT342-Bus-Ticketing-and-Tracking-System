@@ -1,5 +1,7 @@
 package edu.cit.btts.dto;
 
+import java.util.List;
+
 // Assuming you have TripResponse and UserDTO from previous steps
 // import edu.cit.btts.dto.TripResponse;
 // import edu.cit.btts.dto.UserDTO;
@@ -11,16 +13,18 @@ public class TicketResponse {
   private SeatDTO seatDetails; // Nested Seat details
   private TripResponse tripDetails; // Nested Trip details
   private UserDTO userDetails; // Nested User (Passenger) details
+  private List<PaymentResponse> payments;
 
   public TicketResponse() {}
 
-  public TicketResponse(Long id, Double fare, String dropOff, SeatDTO seatDetails, TripResponse tripDetails, UserDTO userDetails) {
+  public TicketResponse(Long id, Double fare, String dropOff, SeatDTO seatDetails, TripResponse tripDetails, UserDTO userDetails, List<PaymentResponse> payments) {
     this.id = id;
     this.fare = fare;
     this.dropOff = dropOff;
     this.seatDetails = seatDetails;
     this.tripDetails = tripDetails;
     this.userDetails = userDetails;
+    this.payments = payments; 
   }
 
   // Getters and Setters
@@ -70,5 +74,13 @@ public class TicketResponse {
 
   public void setUserDetails(UserDTO userDetails) {
     this.userDetails = userDetails;
+  }
+
+  public List<PaymentResponse> getPayments() {
+    return payments;
+  }
+
+  public void setPayments(List<PaymentResponse> payments) {
+    this.payments = payments;
   }
 }
