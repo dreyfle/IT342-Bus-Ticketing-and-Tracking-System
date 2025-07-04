@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { UserProvider } from './context/UserContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AppRoutes from './routes/AppRoutes';
+import { TransactionProvider } from './context/TransactionContext';
 
 
 function App() {
@@ -11,8 +12,11 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <UserProvider>
-        <AppRoutes />
+        <TransactionProvider>
+          <AppRoutes />
+        </TransactionProvider>
       </UserProvider>
+      
     </GoogleOAuthProvider>
   );
 }
