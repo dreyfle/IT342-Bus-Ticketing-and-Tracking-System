@@ -2,7 +2,7 @@ import { useUser } from "../context/UserContext";
 
 const StaffHomePage = () => {
   const {logout} = useUser()
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       {/* Header */}
@@ -53,8 +53,8 @@ const StaffHomePage = () => {
                 <div className="flex justify-center mb-4">
                   <span className="text-white text-3xl" role="img" aria-label="seat">💺</span>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Seat Tracking</h3>
-                <p className="text-blue-100 text-sm">Monitor seat availability and assignments</p>
+                <h3 className="text-lg font-semibold text-white mb-2">Payment Approval</h3>
+                <p className="text-blue-100 text-sm">Monitor payment status and approvals</p>
               </div>
             </div>
           </div>

@@ -1,6 +1,16 @@
-import { useUser } from "../context/UserContext"
+import { useNavigate } from "react-router-dom"
 
+import { useUser } from "../context/UserContext"
 const AdminHomePage = () => {
+  const navigate = useNavigate()
+
+  const handleUserControlClick = () => {
+    navigate("/user-control")
+  }
+
+  const handleTripManagementClick = () => {
+    navigate("/trip-management")
+  }
   const { logout } = useUser()
 
   return (
@@ -37,32 +47,25 @@ const AdminHomePage = () => {
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-blue-200">
           <div className="grid gap-6 md:grid-cols-1 max-w-md mx-auto">
             {/* Trip Management */}
-            <div className="group cursor-pointer">
+            <div className="group cursor-pointer" onClick={handleTripManagementClick}>
               <div className="bg-blue-600 hover:bg-blue-700 transition-colors rounded-xl p-6 text-center">
                 <div className="flex justify-center mb-4">
-                  <span className="text-white text-3xl" role="img" aria-label="route">🗺️</span>
+                  <span className="text-white text-3xl" role="img" aria-label="route">
+                    🗺️
+                  </span>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">Trip Management</h3>
                 <p className="text-blue-100 text-sm">Manage routes and schedules</p>
               </div>
             </div>
 
-            {/* Analytics */}
-            <div className="group cursor-pointer">
-              <div className="bg-blue-500 hover:bg-blue-600 transition-colors rounded-xl p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <span className="text-white text-3xl" role="img" aria-label="bar chart">📊</span>
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Analytics</h3>
-                <p className="text-blue-100 text-sm">View system analytics and reports</p>
-              </div>
-            </div>
-
             {/* User Control */}
-            <div className="group cursor-pointer">
+            <div className="group cursor-pointer" onClick={handleUserControlClick}>
               <div className="bg-blue-400 hover:bg-blue-500 transition-colors rounded-xl p-6 text-center">
                 <div className="flex justify-center mb-4">
-                  <span className="text-white text-3xl" role="img" aria-label="users">👥</span>
+                  <span className="text-white text-3xl" role="img" aria-label="users">
+                    👥
+                  </span>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">User Control</h3>
                 <p className="text-blue-100 text-sm">Manage users and permissions</p>

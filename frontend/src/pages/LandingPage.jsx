@@ -146,7 +146,6 @@ export default function LandingPage() {
             <Navigate to="/unauthorized" replace />
           )
         )
-    )}
     </div>
   );
 }
