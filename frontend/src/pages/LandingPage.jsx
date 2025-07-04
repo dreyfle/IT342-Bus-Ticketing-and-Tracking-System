@@ -3,6 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/goo
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
 import { Navigate } from 'react-router-dom';
+
 export default function LandingPage() {
   const {user, setUser, role, setRole} = useUser();
   const [jwtToken, setJwtToken] = useState(localStorage.getItem('jwtToken'));
@@ -145,7 +146,6 @@ export default function LandingPage() {
             <Navigate to="/unauthorized" replace />
           )
         )
-      )}
     </div>
   );
 }

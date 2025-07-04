@@ -141,6 +141,7 @@ const TicketBooking = () => {
             <div className="w-64 border-l border-gray-200 bg-gray-50">
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+                
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Departure Time</label>
@@ -157,7 +158,7 @@ const TicketBooking = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Origin</label>
                     <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                      <option value="South Bus Terminal">South Bus Terminal</option>
+                      <option value="South Bus Terminal">South Bus Terminal</option> 
                     </select>
                   </div>
 
@@ -194,7 +195,6 @@ const TicketBooking = () => {
                   <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
                     Apply Filters
                   </button>
-
                   <button
                     onClick={handleTransactionClick}
                     className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium"

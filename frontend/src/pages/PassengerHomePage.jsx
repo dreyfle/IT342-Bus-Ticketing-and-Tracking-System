@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
+import { useUser } from "../context/UserContext"
 
 const PassengerHomePage = () => {
+  const {logout} = useUser();
   const navigate = useNavigate()
 
   const handleTicketBookingClick = () => {
@@ -28,8 +30,10 @@ const PassengerHomePage = () => {
               <div className="flex items-center space-x-2">
                 <span className="text-blue-600 text-xl" role="img" aria-label="user">👤</span>
               </div>
-              <button className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors">
-                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+              <button className="p-2 px-4 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors"
+              onClick={logout}
+              >
+                Log Out
               </button>
             </div>
           </div>
