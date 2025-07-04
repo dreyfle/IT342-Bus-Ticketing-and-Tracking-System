@@ -35,6 +35,7 @@ public class RouteService {
         //             "Route from '" + routeDTO.getOrigin() + "' to '" + routeDTO.getDestination() + "' already exists.");
         // }
 
+
         Route route = new Route();
         mapDtoToEntity(routeDTO, route); // Map DTO fields to the new Route entity
 

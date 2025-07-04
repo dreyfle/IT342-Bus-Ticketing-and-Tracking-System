@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 
 const PassengerHomePage = () => {
   const {logout} = useUser();
-
   const navigate = useNavigate()
 
   const handleTicketBookingClick = () => {
@@ -48,6 +47,7 @@ const PassengerHomePage = () => {
 
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-blue-200">
           <div className="grid gap-6 md:grid-cols-1 max-w-md mx-auto">
+            {/* Ticket Booking */}
             <div className="group cursor-pointer" onClick={handleTicketBookingClick}>
               <div className="bg-blue-600 hover:bg-blue-700 transition-colors rounded-xl p-6 text-center">
                 <div className="flex justify-center mb-4">
@@ -58,6 +58,7 @@ const PassengerHomePage = () => {
               </div>
             </div>
 
+            {/* Schedule Viewing */}
             <div className="group cursor-pointer" onClick={handleScheduleViewingClick}>
               <div className="bg-blue-500 hover:bg-blue-600 transition-colors rounded-xl p-6 text-center">
                 <div className="flex justify-center mb-4">
@@ -68,6 +69,8 @@ const PassengerHomePage = () => {
               </div>
             </div>
 
+
+            {/* History */}
             <div className="group cursor-pointer" onClick={handleHistoryClick}>
               <div className="bg-blue-400 hover:bg-blue-500 transition-colors rounded-xl p-6 text-center">
                 <div className="flex justify-center mb-4">
