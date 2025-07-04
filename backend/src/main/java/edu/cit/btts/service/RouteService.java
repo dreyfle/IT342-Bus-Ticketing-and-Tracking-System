@@ -30,10 +30,11 @@ public class RouteService {
      */
     public RouteDTO createRoute(RouteDTO routeDTO) {
         // Business logic: Check for existing route with same origin and destination
-        if (routeRepository.findByOriginAndDestination(routeDTO.getOrigin(), routeDTO.getDestination()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Route from '" + routeDTO.getOrigin() + "' to '" + routeDTO.getDestination() + "' already exists.");
-        }
+        // if (routeRepository.findByOriginAndDestination(routeDTO.getOrigin(), routeDTO.getDestination()).isPresent()) {
+        //     throw new ResponseStatusException(HttpStatus.CONFLICT,
+        //             "Route from '" + routeDTO.getOrigin() + "' to '" + routeDTO.getDestination() + "' already exists.");
+        // }
+
 
         Route route = new Route();
         mapDtoToEntity(routeDTO, route); // Map DTO fields to the new Route entity
@@ -117,7 +118,7 @@ public class RouteService {
     // --- Helper Methods for DTO <-> Entity Mapping (private to the service) ---
 
     // Converts a Route entity to a RouteDTO
-    private RouteDTO mapEntityToDto(Route route) {
+    public RouteDTO mapEntityToDto(Route route) {
         if (route == null) return null;
         return new RouteDTO(
                 route.getId(),
@@ -129,7 +130,7 @@ public class RouteService {
     }
 
     // Maps fields from a RouteDTO to a Route entity
-    private void mapDtoToEntity(RouteDTO routeDTO, Route route) {
+    public void mapDtoToEntity(RouteDTO routeDTO, Route route) {
         // ID is not mapped from DTO to entity here as it's typically set by JPA or path variable
         route.setOrigin(routeDTO.getOrigin());
         route.setDestination(routeDTO.getDestination());

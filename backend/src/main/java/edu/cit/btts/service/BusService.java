@@ -113,7 +113,8 @@ public class BusService {
     // --- Helper Methods for DTO <-> Entity Mapping (private to the service) ---
 
     // Converts a Bus entity to a BusDTO
-    private BusDTO mapEntityToDto(Bus bus) {
+    public BusDTO mapEntityToDto(Bus bus) {
+
         if (bus == null) return null;
         return new BusDTO(
                 bus.getId(),
@@ -128,7 +129,8 @@ public class BusService {
     }
 
     // Maps fields from a BusDTO to a Bus entity
-    private void mapDtoToEntity(BusDTO busDTO, Bus bus) {
+    public void mapDtoToEntity(BusDTO busDTO, Bus bus) {
+
         // ID is not mapped from DTO to entity here as it's typically set by JPA or path variable
         bus.setPlateNumber(busDTO.getPlateNumber());
         bus.setName(busDTO.getName());

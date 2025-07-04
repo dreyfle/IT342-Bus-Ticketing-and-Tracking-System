@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom"
 import { useTransactions } from "../context/TransactionContext"
 
@@ -47,7 +46,6 @@ const TransactionHistory = () => {
               <span className="text-blue-600 font-semibold text-sm">P</span>
             </div>
             <span className="text-sm">Passenger E</span>
-
           </div>
         </div>
       </div>

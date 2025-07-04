@@ -11,3 +11,4 @@ export default function Page() {
 }
 export default function Home() {
   return <PassengerHomePage />
+}

@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom"
-
 import { useUser } from "../context/UserContext"
 const AdminHomePage = () => {
   const navigate = useNavigate()

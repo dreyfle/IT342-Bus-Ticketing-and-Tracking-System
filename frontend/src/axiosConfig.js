@@ -1,14 +1,23 @@
-// src/axiosConfig.js (or any central place like main.jsx/main.tsx)
 import axios from 'axios';
 
-// Get the base URL from your .env file
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL
+})
 
-// Set the global default base URL for all Axios requests
-axios.defaults.baseURL = API_BASE_URL;
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (!config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
 
-// Optional: Add common headers here too if needed
-// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-axios.defaults.headers.post['Content-Type'] = 'application/json';
-
-export default axios; // Export the configured default instance
+export default api

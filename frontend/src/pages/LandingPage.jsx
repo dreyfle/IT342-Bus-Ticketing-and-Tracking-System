@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/google';
-import axios from 'axios';
 import { useUser } from '../context/UserContext';
 import { Navigate } from 'react-router-dom';
+import api from '../axiosConfig';
 
 export default function LandingPage() {
   const {user, setUser, role, setRole} = useUser();
@@ -11,20 +11,20 @@ export default function LandingPage() {
   const [error, setError] = useState(null);
 
   // Accessing environment variables
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  useEffect(() => {
-    // If a JWT token exists, try to fetch protected data
-    if (jwtToken) {
-      fetchProtectedData();
-    }
-  }, [jwtToken]);
+  // useEffect(() => {
+  //   // If a JWT token exists, try to fetch protected data
+  //   if (jwtToken) {
+  //     fetchProtectedData();
+  //   }
+  // }, [jwtToken]);
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       // console.log('Google login success:', credentialResponse);
       // Send the id_token to your backend for verification
-      const response = await axios.post(API_BASE_URL+"/auth/google", {
+      const response = await api.post("/auth/google", {
         idToken: credentialResponse.credential // This is the id_token
       });
 
@@ -38,7 +38,7 @@ export default function LandingPage() {
         setRole(role);
         setError(null);
         // Now that we have the JWT, try fetching protected data
-        fetchProtectedData();
+        // fetchProtectedData();
       } else {
         setError("Backend did not return a JWT token.");
         console.error("Backend did not return a JWT token.");
@@ -58,40 +58,40 @@ export default function LandingPage() {
     setError("Google login failed. Please try again.");
   };
 
-  const handleLogout = () => {
-    googleLogout(); // Clear Google session
-    localStorage.removeItem('jwtToken'); // Clear our JWT
-    setJwtToken(null);
-    setUser(null);
-    setRole(null);
-    setProtectedData(null);
-    setError(null);
-    console.log('Logged out');
-  };
+  // const handleLogout = () => {
+  //   googleLogout(); // Clear Google session
+  //   localStorage.removeItem('jwtToken'); // Clear our JWT
+  //   setJwtToken(null);
+  //   setUser(null);
+  //   setRole(null);
+  //   setProtectedData(null);
+  //   setError(null);
+  //   console.log('Logged out');
+  // };
 
-  const fetchProtectedData = async () => {
-    if (!jwtToken) {
-      setError("No JWT token available to fetch protected data.");
-      return;
-    }
-    try {
-      const response = await axios.get(API_BASE_URL+'/protected', {
-        headers: {
-          Authorization: `Bearer ${jwtToken}`
-        }
-      });
-      setProtectedData(response.data);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching protected data:', err);
-      setError("Failed to fetch protected data. Your session might have expired. Please log in again.");
-      // If 401 or 403, might need to re-login
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        handleLogout(); // Force logout if token is invalid
-      }
-      setProtectedData(null);
-    }
-  };
+  // const fetchProtectedData = async () => {
+  //   if (!jwtToken) {
+  //     setError("No JWT token available to fetch protected data.");
+  //     return;
+  //   }
+  //   try {
+  //     const response = await axios.get(API_BASE_URL+'/protected', {
+  //       headers: {
+  //         Authorization: `Bearer ${jwtToken}`
+  //       }
+  //     });
+  //     setProtectedData(response.data);
+  //     setError(null);
+  //   } catch (err) {
+  //     console.error('Error fetching protected data:', err);
+  //     setError("Failed to fetch protected data. Your session might have expired. Please log in again.");
+  //     // If 401 or 403, might need to re-login
+  //     if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+  //       handleLogout(); // Force logout if token is invalid
+  //     }
+  //     setProtectedData(null);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 flex items-center justify-center p-4">
@@ -146,6 +146,7 @@ export default function LandingPage() {
             <Navigate to="/unauthorized" replace />
           )
         )
+    )}
     </div>
   );
 }
