@@ -58,17 +58,6 @@ const PassengerHomePage = () => {
               </div>
             </div>
 
-            {/* Schedule Viewing */}
-            <div className="group cursor-pointer" onClick={handleScheduleViewingClick}>
-              <div className="bg-blue-500 hover:bg-blue-600 transition-colors rounded-xl p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <span className="text-white text-3xl" role="img" aria-label="calendar">📅</span>
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Schedule Viewing</h3>
-                <p className="text-blue-100 text-sm">Check bus schedules and routes</p>
-              </div>
-            </div>
-
 
             {/* History */}
             <div className="group cursor-pointer" onClick={handleHistoryClick}>
