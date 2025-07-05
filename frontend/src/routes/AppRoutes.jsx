@@ -15,6 +15,7 @@ import PaymentUpload from '../pages/PaymentUpload';
 import UserControl from '../pages/UserControl';
 import TripManagement from '../pages/TripManagement';
 import HomeRedirectRoute from './HomeRedirectRoute';
+import ProfilePage from '../pages/ProfilePage';
 
 
 export default function AppRoutes() {
@@ -24,8 +25,9 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/home" element={<HomeRedirectRoute />} />
-      <Route path="/*" element={<h1>Page Not Found</h1>} />
+      <Route path="/profile" element={<ProfilePage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="/*" element={<h1>Page Not Found</h1>} />
 
       {/* Protected route for role: 'PASSENGER' */}
       <Route element={<ProtectedRoute allowedRoles={['PASSENGER']} />}>

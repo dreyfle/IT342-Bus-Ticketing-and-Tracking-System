@@ -55,6 +55,7 @@ export const UserProvider = ({ children }) => {
     setUser(null);
     setRole(null);
     setRoleDisplay(null);
+    navigate("/");
   }
 
   const login = (token) => {
