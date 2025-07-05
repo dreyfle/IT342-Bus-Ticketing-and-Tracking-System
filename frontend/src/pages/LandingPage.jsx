@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/google';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useUser } from '../context/UserContext';
 import { Navigate } from 'react-router-dom';
 import api from '../axiosConfig';
 
 export default function LandingPage() {
-  const {user, setUser, role, setRole} = useUser();
+  const {setUser, role, login} = useUser();
   const [jwtToken, setJwtToken] = useState(localStorage.getItem('jwtToken'));
-  const [protectedData, setProtectedData] = useState(null);
+  // const [protectedData, setProtectedData] = useState(null);
   const [error, setError] = useState(null);
 
   // Accessing environment variables
@@ -32,13 +32,8 @@ export default function LandingPage() {
       const { token, user: backendUser, role } = response.data; // Assuming backend returns {token: "...", user: {...}}
 
       if (token) {
-        localStorage.setItem('jwtToken', token);
-        setJwtToken(token);
-        setUser(backendUser); // Set user info from backend
-        setRole(role);
+        login(token)
         setError(null);
-        // Now that we have the JWT, try fetching protected data
-        // fetchProtectedData();
       } else {
         setError("Backend did not return a JWT token.");
         console.error("Backend did not return a JWT token.");
@@ -121,7 +116,7 @@ export default function LandingPage() {
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
                     useOneTap
-                    locale="en"
+                    locale="en-US"
                     theme="outline"
                     size="large"
                     width="300"
@@ -135,17 +130,8 @@ export default function LandingPage() {
           </div>
         </div>
       ) : (
-        role && (
-          role === "PASSENGER" ? (
-            <Navigate to="/passenger-home" replace />
-          ) : role === "TICKET_STAFF" ? (
-            <Navigate to="/staff-home" replace />
-          ) : role === "TRANSIT_ADMIN" ? (
-            <Navigate to="/admin-home" replace />
-          ) : (
-            <Navigate to="/unauthorized" replace />
-          )
-        )
+
+      <Navigate to="/home" replace />
     )}
     </div>
   );

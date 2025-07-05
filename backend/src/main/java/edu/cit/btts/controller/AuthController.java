@@ -53,9 +53,9 @@ public class AuthController {
         user = existingUserOptional.get();
         System.out.println("Existing user logged in: " + email);
         // Optionally update their first/last name in case it changed on Google's side
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        jwtUserDetailsService.saveUser(user); // save to update
+        // user.setFirstName(firstName);
+        // user.setLastName(lastName);
+        // jwtUserDetailsService.saveUser(user); // save to update
       } else {
         // New user, create and save them
         user = new User(email, firstName, lastName);
