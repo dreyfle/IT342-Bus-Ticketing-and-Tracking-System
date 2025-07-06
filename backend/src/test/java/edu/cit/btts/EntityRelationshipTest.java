@@ -43,7 +43,7 @@ public class EntityRelationshipTest {
 
         // --- 2. Create and Save Bus ---
         System.out.println("\n--- 2. Creating and Saving a Bus ---");
-        Bus bus = new Bus("PLATE123", "Citibus 1", "Cit Express", 10, 4, "1,2,3,4,5,6,7,8,9,10", "A,B,C,D");
+        Bus bus = new Bus("PLATE123", "Citibus 1", "Cit Express", 10, 4);
         bus = busRepository.save(bus);
         assertNotNull(bus.getId(), "Bus should have an ID after saving.");
         System.out.println("Saved Bus: " + bus);

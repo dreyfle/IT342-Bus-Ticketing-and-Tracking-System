@@ -69,59 +69,59 @@ export default function BusManagement() {
               </svg>
               Add a Bus</button>
           </div>
-          {/* Main Content */}
-          {
-            isLoading ? (
-              <span className="loading loading-spinner loading-xl" />
-            ) : (
-              buses && buses.length > 0 ? (
-                // DISPLAYING ALL BUSES
-                <table className="table-auto">
-                  <thead>
-                    <tr className="border-b border-blue-200 bg-blue-50">
+          <div className="overflow-x-auto">
+            {/* Main Content */}
+            {
+              isLoading ? (
+                <div className="flex items-center justify-center p-10">
+                  <span className="loading loading-spinner text-primary loading-xl" />
+                </div>
+              ) : (
+                buses && buses.length > 0 ? (
+                  // DISPLAYING ALL BUSES
+                  <table className="table-auto">
+                    <thead>
+                      <tr className="border-b border-blue-200 bg-blue-50">
+                        {
+                          tableHeaders.map((header, index)=>(
+                            <th key={index} className="p-4 text-left text-sm font-semibold text-blue-900 border-r border-blue-200">
+                              {header}
+                            </th>
+                          ))
+                        }
+                        
+                      </tr>
+                    </thead>
+                    <tbody>
                       {
-                        tableHeaders.map((header, index)=>(
-                          <th key={index} className="p-4 text-left text-sm font-semibold text-blue-900 border-r border-blue-200">
-                            {header}
-                          </th>
+                        // DISPLAYING ALL BUSES
+                        buses.map((bus) => (
+                          <tr key={bus.id} className="border-b border-blue-100 hover:bg-blue-50 transition-colors">
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.plateNumber}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.name}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.operator}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.rowCount}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.columnCount}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100 w-auto">
+                              <div className="flex gap-2">
+                                <button className="btn btn-primary btn-outline"
+                                  onClick={()=>handleEdit(bus.id)} disabled={isLoading}
+                                >Edit</button>
+                                <button className="btn btn-error btn-outline "
+                                  onClick={()=>handleDelete(bus.id)} disabled={isLoading}
+                                >Delete</button>
+                              </div>
+                            </td>
+                          </tr>
                         ))
                       }
-                      
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      // DISPLAYING ALL BUSES
-                      buses.map((bus) => (
-                        <tr key={bus.id} className="border-b border-blue-100 hover:bg-blue-50 transition-colors">
-                          <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.plateNumber}</td>
-                          <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.name}</td>
-                          <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.operator}</td>
-                          <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.rowCount}</td>
-                          <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.columnCount}</td>
-                          <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100 w-auto">
-                            <div className="flex gap-2">
-                              <button className="btn btn-primary btn-outline"
-                                onClick={()=>handleEdit(bus.id)} disabled={isLoading}
-                              >Edit</button>
-                              <button className="btn btn-error btn-outline "
-                                onClick={()=>handleDelete(bus.id)} disabled={isLoading}
-                              >Delete</button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    }
-                  </tbody>
-              </table>
-              ) : (
-                <h1>No buses available</h1>
+                    </tbody>
+                </table>
+                ) : (
+                  <h1>No buses available</h1>
+                )
               )
-            )
-          }
-          
-          <div className="overflow-x-auto">
-            
+            }
           </div>
         </div>
       </div>
