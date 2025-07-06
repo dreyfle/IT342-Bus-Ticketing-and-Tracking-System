@@ -14,6 +14,7 @@ import Transaction from '../pages/Transaction';
 import PaymentUpload from '../pages/PaymentUpload';
 import UserControl from '../pages/UserControl';
 import TripManagement from '../pages/TripManagement';
+import UpdateRolePage from '../pages/UpdateRole'
 
 
 export default function AppRoutes() {
@@ -40,12 +41,16 @@ export default function AppRoutes() {
         {/* Protected route for role: 'TRANSIT_ADMIN' */}
         <Route element={<ProtectedRoute allowedRoles={['TRANSIT_ADMIN']} />}>
           <Route path="/admin-home" element={<AdminHomePage />} />
+          <Route path="/user-control" element={<UserControl />} />
+          <Route path="/update-role" element={<UpdateRole />} />
+          <Route path="/edit-user/:id" element={<EditUser />} />
         </Route>
 
         <Route path="/transaction" element={<Transaction />} />
         <Route path="/payment-upload" element={<PaymentUpload />} />
         <Route path="/user-control" element={<UserControl />} />
         <Route path="/trip-management" element={<TripManagement />} />
+        
 
       </Routes>
     </Router>
