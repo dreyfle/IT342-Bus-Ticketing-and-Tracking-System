@@ -14,7 +14,8 @@ import Transaction from '../pages/Transaction';
 import PaymentUpload from '../pages/PaymentUpload';
 import UserControl from '../pages/UserControl';
 import TripManagement from '../pages/TripManagement';
-import UpdateRolePage from '../pages/UpdateRole'
+import UpdateRole from '../pages/UpdateRole';
+import EditUser from "../pages/EditUser"
 
 
 export default function AppRoutes() {
