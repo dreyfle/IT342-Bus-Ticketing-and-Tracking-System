@@ -28,20 +28,23 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
   const [buses, setBuses] = useState(null)
   const [selectedBusId, setSelectedBusId] = useState("")
 
-  useEffect(()=>{
-    fetchAllBuses()
-  }, [])
+  // useEffect(()=>{
+  // }, [loading])
 
   useEffect(()=>{
+    fetchAllBuses()
+
     // console.log("Bus submitted for Edit", bus)
     if (trip) {
       setAction("EDIT")
       setTripInput(trip)
       setRouteInput(trip?.routeDetails)
+      setSelectedBusId(String(trip?.busDetails?.id || ""))
     } else {
       setAction("ADD")
       setTripInput(TRIP_FORM_TEMPLATE)
       setRouteInput(ROUTE_FORM_TEMPLATE)
+      setSelectedBusId("Select a Bus")
     }
   }, [loading])
 
@@ -84,7 +87,7 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
     const route_payload = { origin, destination, stops, basePrice }
 
     const { departureTime, busDetails } = tripInput
-    const trip_payload = { departureTime, "busId":busDetails?.id || selectedBusId, "routeDetails":route_payload }
+    const trip_payload = { departureTime, "busId": Number(busDetails?.id || selectedBusId), "routeDetails":route_payload }
     try {
       if (action === "ADD") {
         console.log("Submit is Add");
@@ -118,6 +121,7 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
     setLoading(false)
     setTripInput(TRIP_FORM_TEMPLATE)
     setRouteInput(ROUTE_FORM_TEMPLATE)
+    setSelectedBusId(null)
     setAction(null)
   }
 
@@ -141,7 +145,7 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
                 <fieldset className="fieldset p-4 w-full">
                   {/* BUS NAME */}
                   <label className="label">Bus Name</label>
-                  <select defaultValue="Select a Bus" required className="select select-sm" onChange={(e)=>setSelectedBusId(e.target.value)}>
+                  <select value={selectedBusId} required className="select select-sm" onChange={(e)=>setSelectedBusId(e.target.value)}>
                     {
                       buses && (buses.length > 0 ? (
                         <>
