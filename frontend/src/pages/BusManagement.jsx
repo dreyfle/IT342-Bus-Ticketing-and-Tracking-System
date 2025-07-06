@@ -10,6 +10,7 @@ export default function BusManagement() {
   const [isButtonLoading, setIsButtonLoading] = useState(false)
   const [selectedBus, setSelectedBus] = useState(null)
   const [buses, setBuses] = useState(null)
+  const navigate = useNavigate();
 
   const tableHeaders = ["Plate #","Bus Name","Operator","Seat Rows","Seat Columns","Action"]
 
@@ -60,20 +61,22 @@ export default function BusManagement() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       <NavBar />
       <div className="max-w-7xl mx-auto w-fit px-4">
-
         <div className="bg-white rounded-2xl shadow-lg border border-blue-200">
           <div className="flex flex-col items-center px-6 py-6 border-b border-blue-200">
+            <button className="btn btn-ghost btn-sm btn-primary mr-auto text-primary hover:text-white transition rounded-lg"
+              onClick={()=>navigate(-1)}
+            >⬅ BACK</button>
             <h2 className="text-3xl font-bold text-blue-900 text-center mb-6">
               Bus Management
               <div className="w-24 h-1 bg-blue-600 mx-auto mt-2"/>
             </h2>
-            <button className="btn btn-primary w-fit" onClick={handleAdd} disabled={isButtonLoading}>
+            <button className="btn btn-primary w-fit rounded-lg" onClick={handleAdd} disabled={isButtonLoading}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                className="w-6 h-6 text-white"
+                className="w-6 h-6 text-white "
               >
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
                 <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" strokeWidth="2" />
@@ -116,10 +119,10 @@ export default function BusManagement() {
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{bus.columnCount}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100 w-auto">
                               <div className="flex gap-2">
-                                <button className="btn btn-primary btn-outline"
+                                <button className="btn btn-primary btn-outline rounded-lg"
                                   onClick={()=>handleEdit(bus)} disabled={isButtonLoading}
                                 >Edit</button>
-                                <button className="btn btn-error btn-outline "
+                                <button className="btn btn-error btn-outline rounded-lg"
                                   onClick={()=>handleDelete(bus.id)} disabled={isButtonLoading}
                                 >Delete</button>
                               </div>

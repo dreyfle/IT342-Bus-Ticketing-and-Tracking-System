@@ -162,8 +162,8 @@ export default function BusModal({bus, loading, setLoading, fetchAllBuses}) {
             </div>
             {/* MODAL BUTTONS */}
             <div className="flex justify-center gap-2 mt-3">
-              <button type="submit" className="btn btn-primary">Submit</button>
-              <button type="button" className="btn btn-outline btn-primary" onClick={handleClose}>Close</button>
+              <button type="submit" className="btn btn-primary rounded-lg">Submit</button>
+              <button type="button" className="btn btn-outline btn-primary rounded-lg" onClick={handleClose}>Close</button>
             </div>
           </form>
         </div>
