@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { getAllUsers } from "../api/userApi"
+import { getAllUsers } from "./user-api"
 
 const UserControl = () => {
   const navigate = useNavigate()
@@ -16,13 +16,14 @@ const UserControl = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  // Get token from localStorage or your UserContext
+  // Mock token - in a real app, get this from authentication context/localStorage
   const token = localStorage.getItem("authToken") || "mock-token"
 
   // Check for success messages from navigation state
   useEffect(() => {
     if (location.state?.message) {
       setMessage(location.state.message)
+      // Clear message after 3 seconds
       setTimeout(() => setMessage(""), 3000)
     }
   }, [location.state])
@@ -40,7 +41,7 @@ const UserControl = () => {
     } catch (err) {
       setError("Failed to fetch users. Please try again.")
       console.error("Error fetching users:", err)
-      // Fallback to static data for demo
+      // Fallback to static data for demo purposes
       setUsers([
         {
           id: 1,
@@ -94,6 +95,7 @@ const UserControl = () => {
     const value = e.target.value
     setSearchQuery(value)
 
+    // Auto-search as user types
     if (value.length > 2) {
       const foundUser = users.find(
         (user) =>

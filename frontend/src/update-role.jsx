@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { updateUserRole } from "../api/userApi"
+import { updateUserRole } from "./user-api"
 
 const UpdateRole = () => {
   const navigate = useNavigate()
@@ -13,7 +13,7 @@ const UpdateRole = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  // Get token from localStorage or your UserContext
+  // Mock token - in a real app, get this from authentication context/localStorage
   const token = localStorage.getItem("authToken") || "mock-token"
 
   const availableRoles = ["Admin", "Ticket Staff", "Passenger"]
@@ -34,6 +34,7 @@ const UpdateRole = () => {
       try {
         await updateUserRole(token, user.email, selectedRole)
 
+        // Navigate back with success message
         navigate("/user-control", {
           state: { message: `Role updated to ${selectedRole} successfully!` },
         })
@@ -44,6 +45,7 @@ const UpdateRole = () => {
         setLoading(false)
       }
     } else if (selectedRole === user.role) {
+      // No change made
       navigate("/user-control", {
         state: { message: "No changes made to user role." },
       })

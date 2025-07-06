@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { updateUserDetails } from "../api/userApi"
+import { updateUserDetails } from "./user-api"
 
 const EditUser = () => {
   const navigate = useNavigate()
@@ -16,7 +16,7 @@ const EditUser = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  // Get token from localStorage or your UserContext
+  // Mock token - in a real app, get this from authentication context/localStorage
   const token = localStorage.getItem("authToken") || "mock-token"
 
   const handleBackClick = () => {
@@ -58,6 +58,7 @@ const EditUser = () => {
 
         await updateUserDetails(token, user.id, userDTO)
 
+        // Navigate back with success message
         navigate("/user-control", {
           state: { message: "Details updated successfully!" },
         })
