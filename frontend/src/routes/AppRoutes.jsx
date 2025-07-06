@@ -17,6 +17,7 @@ import TripManagement from '../pages/TripManagement';
 import HomeRedirectRoute from './HomeRedirectRoute';
 import ProfilePage from '../pages/ProfilePage';
 import BusManagement from '../pages/BusManagement';
+import TripManagementFinal from '../pages/TripManagementFinal';
 
 
 export default function AppRoutes() {
@@ -47,9 +48,7 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute allowedRoles={['TRANSIT_ADMIN']} />}>
         <Route path="/admin-home" element={<AdminHomePage />} />
         <Route path="/bus-management" element={<BusManagement />} />
-        <Route path="/bus-management/create" element={<>Create Bus</>} />
-        <Route path="/bus-management/edit" element={<>Create Bus</>} />
-        <Route path="/trip-management" element={<TripManagement />} />
+        <Route path="/trip-management" element={<TripManagementFinal />} />
         <Route path="/user-control" element={<UserControl />} />
       </Route>
 
