@@ -1,8 +1,13 @@
 package edu.cit.btts.model;
 
 import jakarta.persistence.*;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set; // For one-to-many relationship with Trip
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Entity
 public class Bus {
@@ -41,15 +46,44 @@ public class Bus {
     public Bus() {
     }
 
-    public Bus(String plateNumber, String name, String operator, Integer rowCount, Integer columnCount, String rowLabel, String columnLabel) {
+    public Bus(String plateNumber, String name, String operator, Integer rowCount, Integer columnCount) {
         this.plateNumber = plateNumber;
         this.name = name;
         this.operator = operator;
         this.rowCount = rowCount;
         this.columnCount = columnCount;
-        this.rowLabel = rowLabel;
-        this.columnLabel = columnLabel;
     }
+
+    
+    // --- JPA Lifecycle Callbacks for Auto-Generation ---
+    @PrePersist // Called before a new entity is saved for the first time
+    @PreUpdate // Called before an existing entity is updated
+    private void generateLabels() {
+        // Only generate if rowCount/columnCount are valid
+        if (this.rowCount != null && this.rowCount > 0)
+            this.rowLabel = generateNumericLabels(this.rowCount);
+        else
+            this.rowLabel = ""; // Ensure it's not null if rowCount is invalid
+
+        if (this.columnCount != null && this.columnCount > 0)
+            this.columnLabel = generateAlphabeticLabels(this.columnCount);
+        else
+            this.columnLabel = ""; // Ensure it's not null if columnCount is invalid
+    }
+
+    // --- Helper methods for label generation ---
+    private String generateNumericLabels(int count) {
+        return IntStream.rangeClosed(1, count)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(","));
+    }
+
+    private String generateAlphabeticLabels(int count) {
+        return IntStream.range(0, count)
+                .mapToObj(i -> String.valueOf((char) ('A' + i)))
+                .collect(Collectors.joining(","));
+    }
+
 
     // Getters and Setters
     public Long getId() {
@@ -112,6 +146,23 @@ public class Bus {
         this.columnLabel = columnLabel;
     }
 
+    // These methods are not persisted to the database; they parse the stored string.
+    @Transient // Marks that this field/method is not to be persisted by JPA
+    public List<String> getRowLabelList() {
+        if (this.rowLabel == null || this.rowLabel.isEmpty()) {
+            return List.of(); // Return empty list for no labels
+        }
+        return Arrays.asList(this.rowLabel.split(","));
+    }
+
+    @Transient
+    public List<String> getColumnLabelList() {
+        if (this.columnLabel == null || this.columnLabel.isEmpty()) {
+            return List.of(); // Return empty list for no labels
+        }
+        return Arrays.asList(this.columnLabel.split(","));
+    }
+
     public Set<Trip> getTrips() {
         return trips;
     }
@@ -142,6 +193,8 @@ public class Bus {
                 ", operator='" + operator + '\'' +
                 ", rowCount=" + rowCount +
                 ", columnCount=" + columnCount +
+                ", rowLabel='" + rowLabel + '\'' + // Include auto-generated labels
+                ", columnLabel='" + columnLabel + '\'' + // Include auto-generated labels
                 '}';
     }
 }

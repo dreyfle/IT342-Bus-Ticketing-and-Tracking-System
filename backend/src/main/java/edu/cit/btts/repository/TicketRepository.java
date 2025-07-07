@@ -10,4 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
   // Custom query to find tickets by a user's ID
   List<Ticket> findByUser_Id(Long userId);
+
+  // Counts tickets for a given trip where the status is BOOKED
+    long countByTripId(Long tripId);
 }
