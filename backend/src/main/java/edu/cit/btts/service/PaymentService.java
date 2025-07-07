@@ -132,6 +132,31 @@ public class PaymentService {
       .collect(Collectors.toList());
   }
 
+   /**
+   * Retrieves payments filtered by their status.
+   * If the current user is a PASSENGER, only their own payments matching the status are returned.
+   * For ADMIN/STAFF, all payments matching the status are returned.
+   *
+   * @param status The PaymentStatus to filter by (PENDING, APPROVED, REJECTED).
+   * @return A list of PaymentResponse DTOs.
+   */
+  public List<PaymentResponse> getPaymentsByStatus(PaymentStatus status) {
+    List<Payment> payments;
+
+    if (isCurrentUserPassenger()) {
+      User currentUser = getAuthenticatedUser();
+      // Passengers can only see their own payments for the given status
+      payments = paymentRepository.findByStatusAndTicket_UserIdOrderByDateAsc(status, currentUser.getId());
+    } else {
+      // ADMIN and STAFF can see all payments for the given status
+      payments = paymentRepository.findByStatusOrderByDateAsc(status);
+    }
+
+    return payments.stream()
+            .map(this::mapEntityToDto)
+            .collect(Collectors.toList());
+  }
+
   /**
    * Updates the status of a payment.
    * Restricted to TRANSIT_ADMIN and TICKET_STAFF roles.

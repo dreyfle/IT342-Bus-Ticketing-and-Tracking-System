@@ -484,6 +484,24 @@ const SeatSelectionModal = ({ trip, onClose, onSeatSelected }) => {
               <span className="text-gray-600">UNAVAILABLE - Can't use</span>
             </div>
           </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex space-x-3">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-xl hover:bg-gray-600 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          {selectedSeat && (
+            <button
+              onClick={handleConfirmSeat}
+              className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-medium"
+            >
+              Proceed to Payment
+            </button>
+          )}
         </div>
 
         {/* Selected Seat Info */}

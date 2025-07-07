@@ -6,11 +6,14 @@ import edu.cit.btts.dto.TripUpdateRequest; // New import
 import edu.cit.btts.dto.TripResponse; // New import
 import edu.cit.btts.service.TripService;
 import jakarta.validation.Valid;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -64,6 +67,14 @@ public class TripController {
   public ResponseEntity<TripResponse> getTripById(@PathVariable Long id) { // Changed DTO type
     TripResponse trip = tripService.getTripById(id); // Delegate to service
     return ResponseEntity.ok(trip);
+  }
+
+  @GetMapping("/by-date")
+  @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF', 'PASSENGER')") // Adjust roles as needed
+  public ResponseEntity<ApiResponse> getTripsByDate(
+          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    List<TripResponse> trips = tripService.getAllTripsByDate(date);
+    return ResponseEntity.ok(new ApiResponse(true, "Trips for " + date + " retrieved successfully.", trips));
   }
 
   /**

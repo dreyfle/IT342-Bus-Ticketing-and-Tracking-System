@@ -1,3 +1,4 @@
+import NavBar from "../components/NavBar";
 import { useUser } from "../context/UserContext"
 import { useNavigate } from 'react-router-dom'
 
@@ -19,25 +20,7 @@ const PassengerHomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-      <header className="bg-white shadow-sm border-b border-blue-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-blue-900">BTTS</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-blue-600 text-xl" role="img" aria-label="user">👤</span>
-              </div>
-              <button className="p-2 px-4 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors"
-              onClick={logout}
-              >
-                Log Out
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <NavBar/>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
