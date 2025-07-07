@@ -52,19 +52,6 @@ public class UserController {
     return ResponseEntity.ok(new ApiResponse(true, "All users retrieved successfully.", users));
   }
 
-  /**
-   * Retrieves all user accounts.
-   * Accessible only by TRANSIT_ADMIN and TICKET_STAFF roles.
-   *
-   * @return A ResponseEntity with a list of UserDTOs.
-   */
-  @GetMapping // Maps to GET /api/users
-  @PreAuthorize("hasAnyRole('TRANSIT_ADMIN')") // Restrict access
-  public ResponseEntity<ApiResponse> getAllUsers() {
-    List<UserDTO> users = userService.getAllUsers();
-    return ResponseEntity.ok(new ApiResponse(true, "All users retrieved successfully.", users));
-  }
-
   @PutMapping("/role")
   @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF', 'PASSENGER')")
   public ResponseEntity<ApiResponse> updateRoleByEmail(@Valid @RequestBody UpdateRoleRequest request) {
