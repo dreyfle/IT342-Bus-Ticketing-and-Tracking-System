@@ -16,7 +16,7 @@ const UpdateRole = () => {
   // Get token from localStorage or your UserContext
   const token = localStorage.getItem("authToken") || "mock-token"
 
-  const availableRoles = ["Admin", "Ticket Staff", "Passenger"]
+  const availableRoles = [{name: "TRANSIT_ADMIN", display: "Admin"}, {name: "TICKET_STAFF", display: "Staff"}, {name: "PASSENGER", display: "Passenger"}]
 
   const handleBackClick = () => {
     navigate("/user-control")
@@ -27,15 +27,15 @@ const UpdateRole = () => {
   }
 
   const handleSave = async () => {
-    if (selectedRole && selectedRole !== user.role) {
+    if (selectedRole && selectedRole.name !== user.role) {
       setLoading(true)
       setError("")
 
       try {
-        await updateUserRole(token, user.email, selectedRole)
+        await updateUserRole(token, user.email, selectedRole.name)
 
         navigate("/user-control", {
-          state: { message: `Role updated to ${selectedRole} successfully!` },
+          state: { message: `Role updated to ${selectedRole.name} successfully!` },
         })
       } catch (err) {
         setError("Failed to update user role. Please try again.")
@@ -43,7 +43,7 @@ const UpdateRole = () => {
       } finally {
         setLoading(false)
       }
-    } else if (selectedRole === user.role) {
+    } else if (selectedRole.name === user.role) {
       navigate("/user-control", {
         state: { message: "No changes made to user role." },
       })
@@ -71,7 +71,7 @@ const UpdateRole = () => {
       </div>
     )
   }
-
+console.log("User: ", user)
   return (
     <div className="min-h-screen bg-gray-300">
       {/* Header */}
@@ -118,16 +118,16 @@ const UpdateRole = () => {
               <div className="space-y-3">
                 {availableRoles.map((role) => (
                   <button
-                    key={role}
+                    key={role.name}
                     onClick={() => handleRoleSelection(role)}
                     className={`w-full px-6 py-3 rounded-full font-medium transition-colors border-2 ${
-                      selectedRole === role
+                      selectedRole.name === role.name
                         ? "bg-blue-500 text-white border-blue-500"
                         : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
                     }`}
                   >
-                    {role}
-                    {role === user.role && <span className="ml-2 text-sm">(Current)</span>}
+                    {role.display}
+                    {role.name === user.role && <span className="ml-2 text-sm">(Current)</span>}
                   </button>
                 ))}
               </div>

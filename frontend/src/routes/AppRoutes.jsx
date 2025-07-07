@@ -45,6 +45,7 @@ export default function AppRoutes() {
           <Route path="/user-control" element={<UserControl />} />
           <Route path="/update-role" element={<UpdateRole />} />
           <Route path="/edit-user/:id" element={<EditUser />} />
+          <Route path="/edit-user" element={<EditUser />} />
         </Route>
 
         <Route path="/transaction" element={<Transaction />} />
