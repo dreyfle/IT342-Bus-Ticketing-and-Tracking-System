@@ -26,7 +26,7 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
   const [tripInput, setTripInput] = useState(null)
   const [routeInput, setRouteInput] = useState(null)
   const [buses, setBuses] = useState(null)
-  const [selectedBusId, setSelectedBusId] = useState("")
+  const [selectedBusId, setSelectedBusId] = useState("Select a Bus")
 
   // useEffect(()=>{
   // }, [loading])
@@ -121,7 +121,7 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
     setLoading(false)
     setTripInput(TRIP_FORM_TEMPLATE)
     setRouteInput(ROUTE_FORM_TEMPLATE)
-    setSelectedBusId(null)
+    setSelectedBusId("Select a Bus")
     setAction(null)
   }
 

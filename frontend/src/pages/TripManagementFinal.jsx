@@ -5,53 +5,14 @@ import { formatDate } from "../utils/dateUtils"
 import TripModal from "../components/modal/TripModal"
 import api from "../axiosConfig"
 
-// const trips = [
-//   {
-//     "id": 4,
-//     "departureTime": "2025-07-10T15:30:00",
-//     "status": "SCHEDULED",
-//     "busDetails": {
-//         "id": 6,
-//         "plateNumber": "DEF-2002",
-//         "name": "Silver Back Express",
-//         "operator": "Mega Sardines Inc.",
-//         "rowCount": 8,
-//         "columnCount": 2,
-//         "rowLabel": "1,2,3,4,5,6,7,8",
-//         "columnLabel": "A,B",
-//         "columnLabelsAsList": [
-//             "A",
-//             "B"
-//         ],
-//         "rowLabelsAsList": [
-//             "1",
-//             "2",
-//             "3",
-//             "4",
-//             "5",
-//             "6",
-//             "7",
-//             "8"
-//         ]
-//     },
-//     "routeDetails": {
-//         "id": 5,
-//         "origin": "Cebu City",
-//         "destination": "Baguio City",
-//         "stops": [
-//             "Mandaue",
-//             "Bogo",
-//             "Sorsogon"
-//         ],
-//         "basePrice": 3000.0
-//     }
-//   }
-// ]
+const getTodayAsYYYYMMDD = () => {
+  return new Date().toISOString().split("T")[0];
+};
 
 export default function TripManagementFinal() {
-
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [isButtonLoading, setIsButtonLoading] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(getTodayAsYYYYMMDD())
   const [selectedTrip, setSelectedTrip] = useState(null)
   const [trips, setTrips] = useState(null)
   const navigate = useNavigate();
@@ -61,13 +22,16 @@ export default function TripManagementFinal() {
   // on mount, fetch all the buses in the DB
   useEffect(()=>{
     fetchAllTrips()
-  }, [])
+  }, [selectedDate])
   
   const fetchAllTrips = async () => {
     try {
       setIsPageLoading(true)
-      const response = await api.get("/trips")
-      setTrips(response?.data)
+      console.log(selectedDate)
+      const response = await api.get(`/trips/by-date?date=${selectedDate}`)
+
+      console.log(response)
+      setTrips(response?.data?.data)
 
     } catch (err) {
       console.error("Error fetching buses: ", err)
@@ -113,19 +77,22 @@ export default function TripManagementFinal() {
               Trip Management
               <div className="w-24 h-1 bg-blue-600 mx-auto mt-2"/>
             </h2>
-            <button className="btn btn-primary w-fit rounded-lg" onClick={handleAdd} disabled={isButtonLoading}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                className="w-6 h-6 text-white "
-              >
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-                <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" strokeWidth="2" />
-                <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="2" />
-              </svg>
-              New Trip</button>
+            <div className="flex items-center gap-3">
+              <input type="date" className="input input-sm input-primary" value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)}/>
+              <button className="btn btn-primary w-fit rounded-lg" onClick={handleAdd} disabled={isButtonLoading}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  className="w-6 h-6 text-white "
+                >
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                  <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" strokeWidth="2" />
+                  <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="2" />
+                </svg>
+                New Trip</button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             {/* Main Content */}
@@ -160,7 +127,7 @@ export default function TripManagementFinal() {
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.routeDetails?.destination}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{formatDate(trip?.departureTime)}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">₱ {trip?.routeDetails?.basePrice}</td>
-                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">TBD / TBD</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.availableSeats} / {trip?.busDetails?.rowCount * trip?.busDetails?.columnCount}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.status}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100 w-auto">
                               <div className="flex gap-2">
