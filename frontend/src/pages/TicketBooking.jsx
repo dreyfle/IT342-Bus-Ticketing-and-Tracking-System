@@ -484,7 +484,7 @@ const SeatSelectionModal = ({ trip, onClose, onSeatSelected }) => {
               <span className="text-gray-600">UNAVAILABLE - Can't use</span>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Action Buttons */}
         <div className="flex space-x-3">
