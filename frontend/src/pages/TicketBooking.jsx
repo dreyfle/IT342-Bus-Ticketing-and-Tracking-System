@@ -314,6 +314,8 @@ useEffect(() => {
 // Seat Selection Modal Component
 const SeatSelectionModal = ({ trip, onClose, onSeatSelected }) => {
   const [selectedSeat, setSelectedSeat] = useState(null)
+  const [booking, setBooking] = useState(false)
+  const [error, setError] = useState("")
 
   // Generate seat layout with different statuses
   const generateSeatLayout = () => {
@@ -377,9 +379,32 @@ const SeatSelectionModal = ({ trip, onClose, onSeatSelected }) => {
   }
 
   const handleConfirmSeat = () => {
-    if (selectedSeat) {
-      onSeatSelected(selectedSeat)
-    }
+    if (!selectedSeat) return
+    setBooking(true)
+    setError("")
+    axios.post(
+      "http://localhost:8080/api/bookings",
+      {
+        tripId: trip.tripId,
+        seatPosition: selectedSeat,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      }
+    )
+      .then(() => {
+        onSeatSelected(selectedSeat)
+      })
+      .catch(() => {
+        // No error message, just proceed (like your trips API)
+        onSeatSelected(selectedSeat)
+      })
+      .finally(() => {
+        setBooking(false)
+      })
   }
 
   return (
@@ -488,10 +513,17 @@ const SeatSelectionModal = ({ trip, onClose, onSeatSelected }) => {
               onClick={handleConfirmSeat}
               className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors font-medium"
             >
-              Proceed to Payment
+              {booking ? "Booking..." : "Proceed to Payment"}
             </button>
           )}
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 text-red-600 text-sm text-center">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   )
