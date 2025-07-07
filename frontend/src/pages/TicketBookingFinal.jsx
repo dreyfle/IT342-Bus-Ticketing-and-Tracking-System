@@ -2,22 +2,35 @@ import { useEffect, useState } from "react"
 import NavBar from "../components/NavBar"
 import { useNavigate } from "react-router-dom"
 import { formatDateTime } from "../utils/dateUtils"
-import TripModal from "../components/modal/TripModal"
+import TicketModal from "../components/modal/TicketModal"
 import api from "../axiosConfig"
 
 const getTodayAsYYYYMMDD = () => {
   return new Date().toISOString().split("T")[0];
 };
 
-export default function TripManagement() {
+const PAYLOAD_FOR_BOOKING = {
+  "rowPosition": 1,
+  "columnPosition": 2,
+  "tripId": 3,
+  "fare": 470.00,
+  "dropOff": "Cebu North Bus Terminal",
+  "userId": 2,
+  "paymentType": "ONLINE",
+  "onlineReceipt": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" // Required for ONLINE
+}
+
+export default function TicketBookingFinal() {
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [isButtonLoading, setIsButtonLoading] = useState(false)
   const [selectedDate, setSelectedDate] = useState(getTodayAsYYYYMMDD())
   const [selectedTrip, setSelectedTrip] = useState(null)
   const [trips, setTrips] = useState(null)
+  const [tickets, setTickets] = useState([])
+  const [ticketIDs, setTicketIDs] = useState([])
   const navigate = useNavigate();
 
-  const tableHeaders = ["Trip ID","Origin","Destination","Departure","Base Fare","Seats","Status","Action"]
+  const tableHeaders = ["Trip ID","Origin","Destination","Departure","Base Fare","Seats Available","Status","Action"]
 
   // on mount, fetch all the buses in the DB
   useEffect(()=>{
@@ -29,6 +42,7 @@ export default function TripManagement() {
       setIsPageLoading(true)
       const response = await api.get(`/trips/by-date?date=${selectedDate}`)
       setTrips(response?.data?.data)
+      fetchMyTickets()
 
     } catch (err) {
       console.error("Error fetching buses: ", err)
@@ -36,30 +50,47 @@ export default function TripManagement() {
       setIsPageLoading(false)
     }
   }
+  const fetchMyTickets = async () => {
+    try {
+      const response = await api.get("/tickets/my-tickets")
+      const temp_tickets = response?.data
+      setTickets(temp_tickets)
+      if (temp_tickets.length > 0) {
+        const IDs = temp_tickets.map(ticket => ticket?.tripDetails?.id)
+        setTicketIDs(IDs)
+      } else {
+        setTicketIDs([])
+      }
+    } catch (err) {
+      console.error("Error fetching tickets: ", err)
+      setTickets([]);
+      setTicketIDs([]);
+    }
+  }
 
-  const handleAdd = () => {
-    setSelectedTrip(null)
+  const handleBook = (trip) => {
+    setSelectedTrip(trip)
     setIsButtonLoading(true)
-    document.getElementById("trip_modal").showModal()
+    document.getElementById("ticket_modal").showModal()
   }
   const handleEdit = (trip) => {
     setSelectedTrip(trip)
     setIsButtonLoading(true)
-    document.getElementById("trip_modal").showModal()
+    // document.getElementById("trip_modal").showModal()
   }
-  const handleDelete = async (id) => {
-    // console.log("Delete for Trip with ID:" + id)
-    try {
-      setIsButtonLoading(true)
-      const response = await api.delete(`/trips/${id}`)
-      alert(response?.data?.message)
-      fetchAllTrips()
-    } catch (err) {
-      console.error(`Error deleting trip with ID: ${id} ; Error: `, err)
-    } finally {
-      setIsButtonLoading(false)
-    }
-  }
+  // const handleDelete = async (id) => {
+  //   // console.log("Delete for Trip with ID:" + id)
+  //   try {
+  //     setIsButtonLoading(true)
+  //     const response = await api.delete(`/trips/${id}`)
+  //     alert(response?.data?.message)
+  //     fetchAllTrips()
+  //   } catch (err) {
+  //     console.error(`Error deleting trip with ID: ${id} ; Error: `, err)
+  //   } finally {
+  //     setIsButtonLoading(false)
+  //   }
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
@@ -71,24 +102,12 @@ export default function TripManagement() {
               onClick={()=>navigate(-1)}
             >⬅ BACK</button>
             <h2 className="text-3xl font-bold text-blue-900 text-center mb-6">
-              Trip Management
+              Book a Bus Trip
               <div className="w-24 h-1 bg-blue-600 mx-auto mt-2"/>
             </h2>
             <div className="flex items-center gap-3">
-              <input type="date" className="input input-sm input-primary" value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)}/>
-              <button className="btn btn-primary w-fit rounded-lg" onClick={handleAdd} disabled={isButtonLoading}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="w-6 h-6 text-white "
-                >
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-                  <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" strokeWidth="2" />
-                  <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="2" />
-                </svg>
-                New Trip</button>
+              <input type="date" className="input input-primary" value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)}/>
+              
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -128,12 +147,33 @@ export default function TripManagement() {
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.status}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100 w-auto">
                               <div className="flex gap-2">
-                                <button className="btn btn-primary btn-outline rounded-lg"
-                                  onClick={()=>handleEdit(trip)} disabled={isButtonLoading}
-                                >Edit</button>
-                                <button className="btn btn-error btn-outline rounded-lg"
-                                  onClick={()=>handleDelete(trip?.id)} disabled={isButtonLoading}
-                                >Delete</button>
+                                {
+                                  ticketIDs.includes(trip?.id) && (
+                                    <button className="btn btn-success btn-outline w-fit rounded-lg" disabled={isButtonLoading}
+                                      onClick={()=>handleBook(trip)}>
+                                      View Ticket
+                                    </button>
+                                  )
+                                }
+                                {
+                                  (trip?.status === "SCHEDULED" || trip?.status === "BOARDING") && (
+                                    <button className="btn btn-primary w-fit rounded-lg" disabled={isButtonLoading}
+                                      onClick={()=>{}} >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        className="w-6 h-6 text-white "
+                                      >
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                                        <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" strokeWidth="2" />
+                                        <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="2" />
+                                      </svg>
+                                      Book
+                                    </button>
+                                  )
+                                }
                               </div>
                             </td>
                           </tr>
@@ -152,7 +192,7 @@ export default function TripManagement() {
           </div>
         </div>
       </div>
-      <TripModal trip={selectedTrip} loading={isButtonLoading} setLoading={setIsButtonLoading} fetchAllTrips={fetchAllTrips}/>
+      <TicketModal trip={selectedTrip} loading={isButtonLoading} setLoading={setIsButtonLoading} fetchAllTrips={fetchAllTrips}/>
     </div>
   )
 }

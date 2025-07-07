@@ -121,7 +121,7 @@ export default function BusModal({bus, loading, setLoading, fetchAllBuses}) {
                         {colLabel.map((col) => {
                           const seatId = `${row}${col}`
                           return (
-                            <button key={seatId} className="w-8 h-8 rounded-sm border-1 border-primary font-bold text-sm">
+                            <button key={seatId} disabled className="w-8 h-8 rounded-sm border-1 border-primary font-bold text-sm">
                               {seatId}
                             </button>
                           )

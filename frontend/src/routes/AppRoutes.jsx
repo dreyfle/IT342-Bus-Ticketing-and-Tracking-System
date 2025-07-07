@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LandingPage from '../pages/LandingPage';
 import { useUser } from '../context/UserContext';
 
-import TicketBooking from '../pages/TicketBooking';
+import TicketBookingFinal from '../pages/TicketBookingFinal';
 import PassengerHomePage from '../pages/PassengerHomePage';
 import AdminHomePage from '../pages/AdminHomePage';
 import StaffHomePage from '../pages/StaffHomePage';
@@ -33,7 +33,7 @@ export default function AppRoutes() {
       {/* Protected route for role: 'PASSENGER' */}
       <Route element={<ProtectedRoute allowedRoles={['PASSENGER']} />}>
         <Route path="/passenger-home" element={<PassengerHomePage />} />
-        <Route path="/ticket-booking" element={<TicketBooking />} />
+        <Route path="/ticket-booking" element={<TicketBookingFinal />} />
         <Route path="/schedule-viewing" element={<ScheduleViewing />} /> 
         <Route path="/transaction-history" element={<TransactionHistory />} />
       </Route>
