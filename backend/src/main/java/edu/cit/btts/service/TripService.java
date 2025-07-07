@@ -11,11 +11,15 @@ import edu.cit.btts.model.Trip;
 import edu.cit.btts.model.TripStatus;
 import edu.cit.btts.repository.BusRepository;
 import edu.cit.btts.repository.RouteRepository;
+import edu.cit.btts.repository.TicketRepository;
 import edu.cit.btts.repository.TripRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,18 +31,21 @@ public class TripService {
   private final RouteRepository routeRepository;
   private final BusService busService;
   private final RouteService routeService;
+  private final TicketRepository ticketRepository;
 
   // Constructor Injection
   public TripService(TripRepository tripRepository,
                       BusRepository busRepository,
                       RouteRepository routeRepository,
                       BusService busService,
-                      RouteService routeService) {
+                      RouteService routeService,
+                      TicketRepository ticketRepository) {
     this.tripRepository = tripRepository;
     this.busRepository = busRepository;
     this.routeRepository = routeRepository;
     this.busService = busService;
     this.routeService = routeService;
+    this.ticketRepository = ticketRepository;
   }
 
   /**
@@ -87,10 +94,28 @@ public class TripService {
    * @return A list of all TripResponses.
    */
   public List<TripResponse> getAllTrips() {
-    List<Trip> trips = tripRepository.findAll();
+    List<Trip> trips = tripRepository.findAllByOrderByDepartureTimeAsc();
     return trips.stream()
             .map(this::mapEntityToDto)
             .collect(Collectors.toList());
+  }
+
+  /**
+   * Retrieves all Trip records for a specific date.
+   *
+   * @param date The LocalDate to filter trips by.
+   * @return A list of TripResponses scheduled for the given date.
+   */
+  public List<TripResponse> getAllTripsByDate(LocalDate date) {
+      // Define the start and end of the day for the given date
+      LocalDateTime startOfDay = date.atStartOfDay(); // Same as date.atTime(LocalTime.MIN)
+      LocalDateTime endOfDay = date.atTime(LocalTime.MAX); // Includes the last nanosecond of the day
+
+      List<Trip> trips = tripRepository.findByDepartureTimeBetweenOrderByDepartureTimeAsc(startOfDay, endOfDay);
+      System.out.println("Trips: "+ trips);
+      return trips.stream()
+              .map(this::mapEntityToDto)
+              .collect(Collectors.toList());
   }
 
   /**
@@ -176,6 +201,31 @@ public class TripService {
     tripRepository.deleteById(id);
   }
 
+  /**
+   * Calculates the number of available seats for a given trip.
+   * Formula: (Bus rowCount * Bus columnCount) - total BOOKED tickets for that trip.
+   *
+   * @param tripId The ID of the trip.
+   * @return The number of available seats.
+   * @throws ResponseStatusException if the trip or associated bus is not found.
+   */
+  public Integer getAvailableSeatsForTrip(Long tripId) {
+    Trip trip = tripRepository.findById(tripId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found with ID: " + tripId));
+
+    if (trip.getBus() == null) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Trip " + tripId + " is not associated with a bus.");
+    }
+
+    // Get total capacity from the bus
+    Integer totalCapacity = trip.getBus().getRowCount() * trip.getBus().getColumnCount();
+
+    // Count booked tickets for this trip
+    long bookedTickets = ticketRepository.countByTripId(tripId);
+
+    return totalCapacity - (int) bookedTickets;
+  }
+
   // --- Helper Method for Entity -> Response DTO Mapping ---
   public TripResponse mapEntityToDto(Trip trip) { // Changed return type
     if (trip == null) return null;
@@ -183,12 +233,24 @@ public class TripService {
     BusDTO busDetails = (trip.getBus() != null) ? busService.mapEntityToDto(trip.getBus()) : null;
     RouteDTO routeDetails = (trip.getRoute() != null) ? routeService.mapEntityToDto(trip.getRoute()) : null;
 
+    // Calculate available seats directly during mapping
+    Integer availableSeats = null;
+    if (trip.getId() != null && trip.getBus() != null && trip.getBus().getRowCount() != null && trip.getBus().getColumnCount() != null) {
+      // You need to ensure the `bus` object is loaded before accessing its properties.
+      // If FetchType.LAZY is used, this might trigger a new query or lead to LazyInitializationException
+      // if not called within a transaction or with proper fetching.
+      // The getAvailableSeatsForTrip method already handles the data fetching safely.
+      // Call the new method to get available seats.
+      availableSeats = getAvailableSeatsForTrip(trip.getId());
+    }
+
     return new TripResponse( // Changed DTO constructor call
       trip.getId(),
       trip.getDepartureTime(),
       trip.getStatus(),
       busDetails,
-      routeDetails
+      routeDetails,
+      availableSeats
     );
   }
 }
