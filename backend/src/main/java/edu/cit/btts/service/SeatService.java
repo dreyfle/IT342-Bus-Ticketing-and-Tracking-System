@@ -7,7 +7,9 @@ import edu.cit.btts.model.Trip;
 import edu.cit.btts.repository.SeatRepository;
 import edu.cit.btts.repository.TripRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,28 @@ public class SeatService {
   public Seat getSeatById(Long id) {
     return seatRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Seat not found with ID: " + id));
+  }
+
+  /**
+   * Retrieves all seat details for a specific trip.
+   *
+   * @param tripId The ID of the trip for which to retrieve seats.
+   * @return A list of SeatDTOs associated with the given trip.
+   * @throws ResponseStatusException if the trip is not found (optional, can return empty list instead).
+   */
+  public List<SeatDTO> getSeatsByTripId(Long tripId) {
+      // Optional: Check if the trip itself exists. If the trip ID is invalid,
+      // you might want to throw an error rather than just returning an empty list.
+      Trip trip = tripRepository.findById(tripId)
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found with ID: " + tripId));
+
+      // Retrieve seats by trip ID
+      List<Seat> seats = seatRepository.findByTripId(trip.getId()); // Use trip.getId() to be consistent
+
+      // Map entities to DTOs
+      return seats.stream()
+              .map(this::mapEntityToDto)
+              .collect(Collectors.toList());
   }
 
   // Update Seat Status (only changes status, doesn't handle ticket association directly here)

@@ -37,7 +37,7 @@ public class TicketController {
      * @return ResponseEntity with the created TicketResponse.
      */
     @PostMapping("/cash") // Specific endpoint for cash payments
-    @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF', 'PASSENGER')")
+    @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF')")
     public ResponseEntity<ApiResponse> createTicketCash(@Valid @RequestBody TicketRequest request) {
         TicketResponse ticket = ticketService.createTicketForCash(request);
         return new ResponseEntity<>(new ApiResponse(true, "Ticket created successfully with cash payment.", ticket), HttpStatus.CREATED);
@@ -51,7 +51,7 @@ public class TicketController {
      * @return ResponseEntity with the created TicketResponse.
      */
     @PostMapping("/online") // Specific endpoint for online payments
-    @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF', 'PASSENGER')")
+    @PreAuthorize("hasAnyRole('PASSENGER')")
     public ResponseEntity<ApiResponse> createTicketOnline(@Valid @RequestBody TicketRequest request) {
         TicketResponse ticket = ticketService.createTicketForOnline(request);
         return new ResponseEntity<>(new ApiResponse(true, "Ticket created successfully with online payment.", ticket), HttpStatus.CREATED);
