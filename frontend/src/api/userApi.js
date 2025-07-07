@@ -5,10 +5,10 @@ const API_BASE = "http://localhost:8080/api/user"
 
 //http://localhost:8080/api/ + http://localhost:8080/api/user
 
-console.log("🌐 API_BASE URL:", API_BASE)
+//console.log("🌐 API_BASE URL:", API_BASE)
 
 export const getAllUsers = async (token) => {
-  console.log("🚀 getAllUsers called with token:", token)
+  //console.log("🚀 getAllUsers called with token:", token)
 
   try {
     // 🔥 TRY WITHOUT AUTHENTICATION FIRST
@@ -20,8 +20,8 @@ export const getAllUsers = async (token) => {
       },
     }
 
-    console.log("📋 Request config:", config)
-    console.log("🎯 Making request to:", API_BASE)
+    /*console.log("📋 Request config:", config)
+    console.log("🎯 Making request to:", API_BASE)*/
 
     const response = await axios.get(API_BASE, config)
 
@@ -40,10 +40,10 @@ export const getAllUsers = async (token) => {
       console.log("🔄 Trying without authentication...")
       try {
         const noAuthResponse = await axios.get(API_BASE)
-        console.log("✅ Success without auth:", noAuthResponse)
+        //console.log("✅ Success without auth:", noAuthResponse)
         return noAuthResponse
       } catch (noAuthError) {
-        console.error("❌ Still failed without auth:", noAuthError)
+        //console.error("❌ Still failed without auth:", noAuthError)
       }
     }
 

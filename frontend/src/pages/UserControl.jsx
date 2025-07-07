@@ -41,27 +41,18 @@ const UserControl = () => {
     setLoading(true)
     setError("")
 
-    console.log("🔑 Token being used:", token)
-    console.log("🔑 Token exists:", !!token)
-
     try {
-      console.log("🚀 Making API call to getAllUsers...")
+
 
       const response = await api.get("/user")
       setData(response.data);
 
-      console.log("✅ API Response received:")
-      console.log("📦 Full response:", response)
-      console.log("📊 Response status:", response.status)
-      console.log("🎯 Response data:", response.data)
-      console.log("🔍 Data type:", typeof response.data.data)
-      console.log("📏 Is array?", Array.isArray(response.data.data))
 
       if (response && response.data && Array.isArray(response.data.data)) {
         setUsers(response.data.data)
-        console.log("✅ Users set successfully:", response.data.data, "users")
+
       } else {
-        console.warn("⚠️ API response format is unexpected")
+
         throw new Error("Invalid response format")
       }
     } catch (err) {
@@ -94,7 +85,6 @@ const UserControl = () => {
           role: "Passenger",
         },
       ]
-      console.log("🔄 Setting fallback users:", fallbackUsers)
       setUsers(fallbackUsers)
     } finally {
       setLoading(false)
