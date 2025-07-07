@@ -94,8 +94,9 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
         alert(response?.data?.message)
       } else if (action === "EDIT") {
         console.log("Submit is Edit");
+        const trip_edit_payload = {...trip_payload, status: tripInput?.status}
         const route_response = await api.put(`/routes/${routeInput?.id}`, route_payload)
-        const trip_response = await api.put(`/trips/${tripInput?.id}`, trip_payload)
+        const trip_response = await api.put(`/trips/${tripInput?.id}`, trip_edit_payload)
         alert(route_response?.data?.message + "\n" + trip_response?.data?.message)
       } else {
         console.error("Submit error")
