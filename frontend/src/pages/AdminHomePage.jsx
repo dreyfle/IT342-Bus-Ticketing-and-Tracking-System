@@ -63,4 +63,8 @@ const AdminHomePage = () => {
   )
 }
 
+//<Link to="/user-control" className="btn">Manage Users</Link>
+//<Link to="/update-role" className="btn">Update Role</Link>
+//example button
+
 export default AdminHomePage

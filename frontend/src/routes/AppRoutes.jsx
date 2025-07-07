@@ -17,6 +17,8 @@ import HomeRedirectRoute from './HomeRedirectRoute';
 import ProfilePage from '../pages/ProfilePage';
 import BusManagement from '../pages/BusManagement';
 import TripManagement from '../pages/TripManagement';
+import UpdateRole from '../pages/UpdateRole';
+import EditUser from "../pages/EditUser"
 
 
 export default function AppRoutes() {
@@ -49,6 +51,9 @@ export default function AppRoutes() {
         <Route path="/bus-management" element={<BusManagement />} />
         <Route path="/trip-management" element={<TripManagement />} />
         <Route path="/user-control" element={<UserControl />} />
+        <Route path="/update-role" element={<UpdateRole />} />
+        <Route path="/edit-user/:id" element={<EditUser />} />
+        <Route path="/edit-user" element={<EditUser />} />
       </Route>
 
       <Route path="/transaction" element={<Transaction />} />

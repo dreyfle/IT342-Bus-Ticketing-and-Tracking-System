@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { getAllUsers } from "../api/userApi"
-import { testBackendConnection } from "../api/testApi"
-import api from "../axiosConfig"
+import { getAllUsers } from "./user-api"
 
 const UserControl = () => {
   const navigate = useNavigate()
@@ -13,79 +11,60 @@ const UserControl = () => {
   const [showUserDetails, setShowUserDetails] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [message, setMessage] = useState("")
+
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [data, setData] = useState([]);
 
-  // Get token from localStorage or your UserContext
+  // Mock token - in a real app, get this from authentication context/localStorage
   const token = localStorage.getItem("authToken") || "mock-token"
 
   // Check for success messages from navigation state
   useEffect(() => {
     if (location.state?.message) {
       setMessage(location.state.message)
+      // Clear message after 3 seconds
       setTimeout(() => setMessage(""), 3000)
     }
   }, [location.state])
 
   useEffect(() => {
-    // Test backend connection first
-    // testBackendConnection()
-
-    // Then try to fetch users
     fetchUsers()
   }, [])
 
   const fetchUsers = async () => {
     setLoading(true)
     setError("")
-
     try {
-
-
-      const response = await api.get("/user")
-      setData(response.data);
-
-
-      if (response && response.data && Array.isArray(response.data.data)) {
-        setUsers(response.data.data)
-
-      } else {
-
-        throw new Error("Invalid response format")
-      }
+      const response = await getAllUsers(token)
+      setUsers(response.data)
     } catch (err) {
-      console.error("❌ API Error:")
-      console.error("Error message:", err.message)
-      console.error("Error response:", err.response)
-      console.error("Error status:", err.response?.status)
-      console.error("Error data:", err.response?.data)
-
-      // Show specific error messages
-      if (err.response?.status === 401) {
-        setError("Authentication failed. Please check your token.")
-      } else if (err.response?.status === 403) {
-        setError("Access denied. You don't have permission.")
-      } else if (err.response?.status === 404) {
-        setError("API endpoint not found. Check if backend is running.")
-      } else if (err.code === "NETWORK_ERROR" || err.message.includes("Network Error")) {
-        setError("Cannot connect to backend server. Is it running on port 8080?")
-      } else {
-        setError(`API Error: ${err.message}`)
-      }
-
-      // Fallback to static data for demo
-      const fallbackUsers = [
+      setError("Failed to fetch users. Please try again.")
+      console.error("Error fetching users:", err)
+      // Fallback to static data for demo purposes
+      setUsers([
         {
           id: 1,
-          email: "test@gmail.com",
-          firstName: "Test",
-          lastName: "User",
+          email: "PassengerEx@gmail.com",
+          firstName: "Passenger",
+          lastName: "E",
           role: "Passenger",
         },
-      ]
-      setUsers(fallbackUsers)
+        {
+          id: 2,
+          email: "admin@gmail.com",
+          firstName: "Admin",
+          lastName: "User",
+          role: "Admin",
+        },
+        {
+          id: 3,
+          email: "staff@gmail.com",
+          firstName: "Ticket",
+          lastName: "Staff",
+          role: "Ticket Staff",
+        },
+      ])
     } finally {
       setLoading(false)
     }
@@ -96,11 +75,6 @@ const UserControl = () => {
   }
 
   const handleSearch = () => {
-    if (!Array.isArray(users)) {
-      console.error("Users is not an array:", users)
-      return
-    }
-
     const foundUser = users.find(
       (user) =>
         user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,7 +95,8 @@ const UserControl = () => {
     const value = e.target.value
     setSearchQuery(value)
 
-    if (value.length > 2 && Array.isArray(users) && users.length > 0) {
+    // Auto-search as user types
+    if (value.length > 2) {
       const foundUser = users.find(
         (user) =>
           user.email.toLowerCase().includes(value.toLowerCase()) ||
@@ -186,7 +161,6 @@ const UserControl = () => {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mx-4 mt-4">
           <p className="text-center font-medium">{error}</p>
-          <p className="text-center text-sm mt-2">Check the browser console (F12) for detailed error logs.</p>
         </div>
       )}
 
@@ -229,15 +203,15 @@ const UserControl = () => {
             <div className="bg-white border-2 border-gray-800 rounded-lg p-4 shadow-lg">
               {/* User Info Header */}
               <div className="grid grid-cols-3 gap-4 mb-4 pb-2 border-b border-gray-300">
-                <div className="font-bold text-gray-700">Name</div>
-                <div className="font-bold text-gray-1100">Email</div>
+                <div className="font-bold text-gray-900">Name</div>
+                <div className="font-bold text-gray-900">Email</div>
                 <div className="font-bold text-gray-900">Role</div>
               </div>
 
               {/* User Info */}
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="text-gray-700">{`${selectedUser.firstName} ${selectedUser.lastName}`}</div>
-                <div className="text-gray-1100 text-sm">{selectedUser.email}</div>
+                <div className="text-gray-900">{`${selectedUser.firstName} ${selectedUser.lastName}`}</div>
+                <div className="text-gray-900 text-sm">{selectedUser.email}</div>
                 <div className="text-gray-900">{selectedUser.role}</div>
               </div>
 

@@ -35,16 +35,12 @@ public class SecurityConfig {
       .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
       .authorizeHttpRequests(authorize -> authorize
         .requestMatchers("/api/auth/google").permitAll() // Allow Google login endpoint without authentication
-        // .requestMatchers("/api/public/**").permitAll() // Example: Public endpoints
-        // Define role-based access for other endpoints
-        // Example: Only TRANSIT_ADMIN can access /api/admin/**
-        .requestMatchers("/api/admin/**").hasRole("TRANSIT_ADMIN")
-        // Example: TICKET_STAFF and TRANSIT_ADMIN can access /api/ticket-staff/**
+        .requestMatchers("/api/user/**").permitAll() // Allow user endpoints for testing
+        .requestMatchers("/api/admin/**").hasRole("TRANSIT_ADMIN") // Define role-based access for other endpoints
         .requestMatchers("/api/ticket-staff/**").hasRole("TICKET_STAFF")
-        // Example: Only PASSENGER can access /api/passenger/**
         .requestMatchers("/api/passenger/**").hasRole("PASSENGER")
         .anyRequest().authenticated() // All other requests require authentication
-    )
+      )
       .exceptionHandling(exception -> exception
         .authenticationEntryPoint(jwtAuthenticationEntryPoint) // Handle authentication errors
       )
