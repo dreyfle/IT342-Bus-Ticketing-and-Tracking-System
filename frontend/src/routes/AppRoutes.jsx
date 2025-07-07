@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LandingPage from '../pages/LandingPage';
 import { useUser } from '../context/UserContext';
 
-import TicketBookingFinal from '../pages/TicketBookingFinal';
+import TicketBooking from '../pages/TicketBooking';
 import PassengerHomePage from '../pages/PassengerHomePage';
 import AdminHomePage from '../pages/AdminHomePage';
 import StaffHomePage from '../pages/StaffHomePage';
@@ -17,6 +17,7 @@ import HomeRedirectRoute from './HomeRedirectRoute';
 import ProfilePage from '../pages/ProfilePage';
 import BusManagement from '../pages/BusManagement';
 import TripManagement from '../pages/TripManagement';
+import StaffTicketBooking from '../pages/StaffTicketBooking';
 
 
 export default function AppRoutes() {
@@ -33,7 +34,7 @@ export default function AppRoutes() {
       {/* Protected route for role: 'PASSENGER' */}
       <Route element={<ProtectedRoute allowedRoles={['PASSENGER']} />}>
         <Route path="/passenger-home" element={<PassengerHomePage />} />
-        <Route path="/ticket-booking" element={<TicketBookingFinal />} />
+        <Route path="/ticket-booking" element={<TicketBooking />} />
         <Route path="/schedule-viewing" element={<ScheduleViewing />} /> 
         <Route path="/transaction-history" element={<TransactionHistory />} />
       </Route>
@@ -41,6 +42,8 @@ export default function AppRoutes() {
       {/* Protected route for role: 'TICKET_STAFF' */}
       <Route element={<ProtectedRoute allowedRoles={['TICKET_STAFF']} />}>
         <Route path="/staff-home" element={<StaffHomePage />} />
+        <Route path="/staff-ticket-booking" element={<StaffTicketBooking />} />
+
       </Route>
 
       {/* Protected route for role: 'TRANSIT_ADMIN' */}

@@ -20,51 +20,49 @@ const PAYLOAD_FOR_BOOKING = {
   "onlineReceipt": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" // Required for ONLINE
 }
 
-export default function TicketBookingFinal() {
+export default function StaffTicketBooking() {
+  const [users, setUsers] = useState(null)
   const [isPageLoading, setIsPageLoading] = useState(false)
   const [isButtonLoading, setIsButtonLoading] = useState(false)
   const [selectedDate, setSelectedDate] = useState(getTodayAsYYYYMMDD())
   const [selectedTrip, setSelectedTrip] = useState(null)
   const [trips, setTrips] = useState(null)
-  const [tickets, setTickets] = useState([])
   const [ticketIDs, setTicketIDs] = useState([])
   const navigate = useNavigate();
 
   const tableHeaders = ["Trip ID","Origin","Destination","Departure","Base Fare","Seats Available","Status","Action"]
 
-  // on mount, fetch all the buses in the DB
+  // on mount, fetch all users
+  useEffect(()=>{
+    fetchAllUsers()
+  }, [])
+
+  // on select date, fetch all the trips in the DB
   useEffect(()=>{
     fetchAllTrips()
   }, [selectedDate])
   
+  const fetchAllUsers = async () => {
+    try {
+      setIsPageLoading(true)
+      const response = await api.get("/user")
+      setUsers(response?.data?.data)
+    } catch (err) {
+      console.error("Error fetching users: ", err)
+    } 
+  }
+
   const fetchAllTrips = async () => {
     try {
       setIsPageLoading(true)
       const response = await api.get(`/trips/by-date?date=${selectedDate}`)
       setTrips(response?.data?.data)
-      fetchMyTickets()
+      // fetchMyTickets()
 
     } catch (err) {
-      console.error("Error fetching buses: ", err)
+      console.error("Error fetching trips: ", err)
     } finally {
       setIsPageLoading(false)
-    }
-  }
-  const fetchMyTickets = async () => {
-    try {
-      const response = await api.get("/tickets/my-tickets")
-      const temp_tickets = response?.data
-      setTickets(temp_tickets)
-      if (temp_tickets.length > 0) {
-        const IDs = temp_tickets.map(ticket => ticket?.tripDetails?.id)
-        setTicketIDs(IDs)
-      } else {
-        setTicketIDs([])
-      }
-    } catch (err) {
-      console.error("Error fetching tickets: ", err)
-      setTickets([]);
-      setTicketIDs([]);
     }
   }
 
@@ -73,24 +71,6 @@ export default function TicketBookingFinal() {
     setIsButtonLoading(true)
     document.getElementById("ticket_modal").showModal()
   }
-  const handleEdit = (trip) => {
-    setSelectedTrip(trip)
-    setIsButtonLoading(true)
-    // document.getElementById("trip_modal").showModal()
-  }
-  // const handleDelete = async (id) => {
-  //   // console.log("Delete for Trip with ID:" + id)
-  //   try {
-  //     setIsButtonLoading(true)
-  //     const response = await api.delete(`/trips/${id}`)
-  //     alert(response?.data?.message)
-  //     fetchAllTrips()
-  //   } catch (err) {
-  //     console.error(`Error deleting trip with ID: ${id} ; Error: `, err)
-  //   } finally {
-  //     setIsButtonLoading(false)
-  //   }
-  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
@@ -102,7 +82,7 @@ export default function TicketBookingFinal() {
               onClick={()=>navigate(-1)}
             >⬅ BACK</button>
             <h2 className="text-3xl font-bold text-blue-900 text-center mb-6">
-              Book a Bus Trip
+              Walk-in Booking
               <div className="w-24 h-1 bg-blue-600 mx-auto mt-2"/>
             </h2>
             <div className="flex items-center gap-3">
@@ -158,7 +138,7 @@ export default function TicketBookingFinal() {
                                 {
                                   (trip?.status === "SCHEDULED" || trip?.status === "BOARDING") && (
                                     <button className="btn btn-primary w-fit rounded-lg" disabled={isButtonLoading}
-                                      onClick={()=>{}} >
+                                      onClick={()=>handleBook(trip)} >
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
@@ -192,7 +172,7 @@ export default function TicketBookingFinal() {
           </div>
         </div>
       </div>
-      <TicketModal trip={selectedTrip} loading={isButtonLoading} setLoading={setIsButtonLoading} fetchAllTrips={fetchAllTrips}/>
+      <TicketModal trip={selectedTrip} users={users} loading={isButtonLoading} setLoading={setIsButtonLoading} fetchAllTrips={fetchAllTrips}/>
     </div>
   )
 }
