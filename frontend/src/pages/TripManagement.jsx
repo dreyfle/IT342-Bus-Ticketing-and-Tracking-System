@@ -1,745 +1,161 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import NavBar from "../components/NavBar"
 import { useNavigate } from "react-router-dom"
+import { formatDateTime } from "../utils/dateUtils"
+import TripModal from "../components/modal/TripModal"
+import api from "../axiosConfig"
 
-const TripManagement = () => {
-  const navigate = useNavigate()
-  const [currentView, setCurrentView] = useState("main") // main, create, seats, addPassenger
+const getTodayAsYYYYMMDD = () => {
+  return new Date().toISOString().split("T")[0];
+};
+
+export default function TripManagement() {
+  const [isPageLoading, setIsPageLoading] = useState(false)
+  const [isButtonLoading, setIsButtonLoading] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(getTodayAsYYYYMMDD())
   const [selectedTrip, setSelectedTrip] = useState(null)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [showRemovePassenger, setShowRemovePassenger] = useState(false)
-  const [showApprovePassenger, setShowApprovePassenger] = useState(false)
-  const [selectedPassenger, setSelectedPassenger] = useState(null)
-  const [selectedSeat, setSelectedSeat] = useState(null)
+  const [trips, setTrips] = useState(null)
+  const navigate = useNavigate();
 
-  // Static trip data
-  const [trips, setTrips] = useState([
-    {
-      tripId: "10202",
-      origin: "South Bus Terminal",
-      destination: "Naga",
-      operator: "Maria Santos Cruz",
-      busClass: "Aircon",
-      departure: "05:30",
-      status: "Available",
-      seats: "0/20",
-      fare: "₱200.00",
-    },
-    {
-      tripId: "10245",
-      origin: "South Bus Terminal",
-      destination: "San Fernando",
-      operator: "Juan Carlos Reyes",
-      busClass: "Ordinary",
-      departure: "06:15",
-      status: "Boarding",
-      seats: "5/20",
-      fare: "₱175.00",
-    },
-  ])
+  const tableHeaders = ["Trip ID","Origin","Destination","Departure","Base Fare","Seats","Status","Action"]
 
-  // Static seat data
-  const [seats, setSeats] = useState({
-    "1A": "Available",
-    "1B": "Available",
-    "1C": "Available",
-    "1D": "Available",
-    "2A": "Available",
-    "2B": "Available",
-    "2C": "Available",
-    "2D": "Available",
-    "3A": "Available",
-    "3B": "Available",
-    "3C": "Available",
-    "3D": "Available",
-    "4A": "Available",
-    "4B": "Available",
-    "4C": "Available",
-    "4D": "Available",
-    "5A": "Available",
-    "5B": "Available",
-    "5C": "Available",
-    "5D": "Available",
-  })
+  // on mount, fetch all the buses in the DB
+  useEffect(()=>{
+    fetchAllTrips()
+  }, [selectedDate])
+  
+  const fetchAllTrips = async () => {
+    try {
+      setIsPageLoading(true)
+      console.log(selectedDate)
+      const response = await api.get(`/trips/by-date?date=${selectedDate}`)
 
-  // Static passenger data
-  const passengers = [
-    {
-      username: "Passenger E",
-      desiredSeat: "1A",
-      paymentCode: "XXX-XXX",
-    },
-    {
-      username: "Space Taker",
-      desiredSeat: "1A",
-      paymentCode: "YYY-YYY",
-    },
-  ]
+      console.log(response)
+      setTrips(response?.data?.data)
 
-  // Form data for create trip with dropdown options
-  const [formData, setFormData] = useState({
-    tripId: "10203",
-    origin: "",
-    destination: "",
-    operator: "",
-    busClass: "",
-    departure: "",
-    status: "",
-    seats: "",
-    fare: "",
-  })
-
-  // Dropdown options (same as Transaction.jsx)
-  const tripIds = [10201, 10245, 10289, 10334, 10378, 10423, 10467, 10512, 10556, 10601, 10645, 10689]
-
-  const destinations = [
-    "Naga",
-    "San Fernando",
-    "Alcoy",
-    "Aloguinsan",
-    "Argao",
-    "Dalaguete",
-    "Oslob",
-    "Balamban",
-    "Carcar",
-    "Sibonga",
-    "Barili",
-    "Badian",
-    "Toledo",
-    "Santander",
-  ]
-
-  const operators = [
-    "Maria Santos Cruz",
-    "Juan Carlos Reyes",
-    "Ana Beatriz Gonzales",
-    "Roberto Miguel Torres",
-    "Carmen Rosa Villanueva",
-  ]
-
-  const busClasses = ["Aircon", "Ordinary"]
-
-  const departureTimes = [
-    "05:30",
-    "06:15",
-    "07:00",
-    "08:30",
-    "09:45",
-    "11:00",
-    "12:30",
-    "14:15",
-    "15:45",
-    "17:00",
-    "18:30",
-    "20:00",
-  ]
-
-  const statuses = ["Available", "Boarding", "Departed", "Cancelled"]
-
-  const seatOptions = ["0/20", "5/20", "10/20", "15/20", "20/20"]
-
-  const amountOptions = []
-  for (let i = 150; i <= 300; i += 25) {
-    amountOptions.push(`₱${i}.00`)
-  }
-
-  const handleBackClick = () => {
-    if (currentView === "main") {
-      navigate("/admin-home")
-    } else {
-      setCurrentView("main")
+    } catch (err) {
+      console.error("Error fetching buses: ", err)
+    } finally {
+      setIsPageLoading(false)
     }
   }
 
-  const handleCreateTrip = () => {
-    setCurrentView("create")
-  }
-
-  const handleUpdateTrip = (trip) => {
-    setSelectedTrip(trip)
-    alert("Trip updated, Notification sent")
-  }
-
-  const handleDeleteTrip = (trip) => {
-    setSelectedTrip(trip)
-    setShowDeleteConfirm(true)
-  }
-
-  const confirmDelete = () => {
-    alert("Trip deleted successfully")
-    setShowDeleteConfirm(false)
+  const handleAdd = () => {
     setSelectedTrip(null)
+    setIsButtonLoading(true)
+    document.getElementById("trip_modal").showModal()
   }
-
-  const handleMonitorSeats = () => {
-    setCurrentView("seats")
+  const handleEdit = (trip) => {
+    setSelectedTrip(trip)
+    setIsButtonLoading(true)
+    document.getElementById("trip_modal").showModal()
   }
-
-  const handleCreateTripSubmit = () => {
-    alert("Trip Successfully Created")
-    setCurrentView("main")
-  }
-
-  const handleAddPassenger = () => {
-    setCurrentView("addPassenger")
-  }
-
-  const handleRemovePassenger = () => {
-    if (selectedSeat) {
-      setShowRemovePassenger(true)
-    } else {
-      alert("Please select a seat first")
+  const handleDelete = async (id) => {
+    // console.log("Delete for Trip with ID:" + id)
+    try {
+      setIsButtonLoading(true)
+      const response = await api.delete(`/trips/${id}`)
+      alert(response?.data?.message)
+      fetchAllTrips()
+    } catch (err) {
+      console.error(`Error deleting trip with ID: ${id} ; Error: `, err)
+    } finally {
+      setIsButtonLoading(false)
     }
   }
 
-  const confirmRemovePassenger = () => {
-    if (selectedSeat) {
-      setSeats((prev) => ({
-        ...prev,
-        [selectedSeat]: "Available",
-      }))
-      alert("Passenger removed successfully")
-      setSelectedSeat(null)
-    }
-    setShowRemovePassenger(false)
-  }
-
-  const handlePassengerSelect = (passenger) => {
-    setSelectedPassenger(passenger)
-    setShowApprovePassenger(true)
-  }
-
-  const handleApprovePassenger = () => {
-    alert("Passenger approved successfully")
-    setShowApprovePassenger(false)
-  }
-
-  const handleSeatClick = (seatId) => {
-    setSelectedSeat(seatId)
-  }
-
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
-
-  const renderSeatGrid = () => {
-    const rows = ["1", "2", "3", "4", "5"]
-    const cols = ["A", "B", "C", "D"]
-
-    return (
-      <div className="grid grid-cols-4 gap-2 border-4 border-black p-8 bg-white max-w-2xl">
-        {rows.map((row) =>
-          cols.map((col) => {
-            const seatId = `${row}${col}`
-            const isOccupied = seats[seatId] === "Occupied"
-            const isSelected = selectedSeat === seatId
-            return (
-              <div
-                key={seatId}
-                onClick={() => handleSeatClick(seatId)}
-                className={`w-24 h-24 border-2 border-black flex items-center justify-center text-lg font-bold cursor-pointer transition-all ${
-                  isSelected
-                    ? "bg-blue-500 text-white"
-                    : isOccupied
-                      ? "bg-gray-400 text-white"
-                      : "bg-white hover:bg-blue-100"
-                }`}
-              >
-                {seatId}
-              </div>
-            )
-          }),
-        )}
-      </div>
-    )
-  }
-
-  // Main Admin View
-  if (currentView === "main") {
-    return (
-      <div className="min-h-screen bg-gray-300">
-        {/* Header */}
-        <div className="bg-gray-200 border-b-2 border-gray-400">
-          <div className="flex items-center justify-between px-4 py-3">
-            <h1 className="text-xl font-bold text-gray-900">BTTS</h1>
-            <button
-              onClick={handleBackClick}
-              className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Title Bar */}
-        <div className="bg-blue-400 border-b-2 border-blue-600 py-4">
-          <h2 className="text-xl font-bold text-center text-gray-900 underline">Admin View</h2>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex">
-          {/* Table Section */}
-          <div className="flex-1 p-4">
-            <div className="bg-white border-2 border-black">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 border-black">
-                    <th className="border-r border-black px-2 py-2 text-sm font-bold">TripID</th>
-                    <th className="border-r border-black px-2 py-2 text-sm font-bold">Origin</th>
-                    <th className="border-r border-black px-2 py-2 text-sm font-bold">Destination</th>
-                    <th className="border-r border-black px-2 py-2 text-sm font-bold">Operator</th>
-                    <th className="border-r border-black px-2 py-2 text-sm font-bold">Bus Class</th>
-                    <th className="border-r border-black px-2 py-2 text-sm font-bold">Departure</th>
-                    <th className="border-r border-black px-2 py-2 text-sm font-bold">Status</th>
-                    <th className="border-r border-black px-2 py-2 text-sm font-bold">Seats</th>
-                    <th className="px-2 py-2 text-sm font-bold">Fare</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {trips.map((trip, index) => (
-                    <tr
-                      key={index}
-                      className="border-b border-black cursor-pointer hover:bg-blue-100 transition-colors"
-                      onClick={() => setSelectedTrip(trip)}
-                    >
-                      <td className="border-r border-black px-2 py-2 text-sm">{trip.tripId}</td>
-                      <td className="border-r border-black px-2 py-2 text-sm">{trip.origin}</td>
-                      <td className="border-r border-black px-2 py-2 text-sm">{trip.destination}</td>
-                      <td className="border-r border-black px-2 py-2 text-sm">{trip.operator}</td>
-                      <td className="border-r border-black px-2 py-2 text-sm">{trip.busClass}</td>
-                      <td className="border-r border-black px-2 py-2 text-sm">{trip.departure}</td>
-                      <td className="border-r border-black px-2 py-2 text-sm">{trip.status}</td>
-                      <td className="border-r border-black px-2 py-2 text-sm">{trip.seats}</td>
-                      <td className="px-2 py-2 text-sm">{trip.fare}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Buttons Section */}
-          <div className="w-48 p-4 space-y-4">
-            <button
-              onClick={handleCreateTrip}
-              className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium"
-            >
-              Create Trip
-            </button>
-            <button
-              onClick={() => (selectedTrip ? handleUpdateTrip(selectedTrip) : alert("Please select a trip first"))}
-              className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium"
-            >
-              Update Trip
-            </button>
-            <button
-              onClick={() => (selectedTrip ? handleDeleteTrip(selectedTrip) : alert("Please select a trip first"))}
-              className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium"
-            >
-              Delete Trip
-            </button>
-            <button
-              onClick={handleMonitorSeats}
-              className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium"
-            >
-              Monitor Seats
-            </button>
-          </div>
-        </div>
-
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white border-2 border-black rounded-lg p-6 max-w-sm mx-4">
-              <p className="text-gray-900 font-medium mb-6 text-center">Are you Sure?</p>
-              <div className="flex justify-center space-x-4">
-                <button
-                  onClick={confirmDelete}
-                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+      <NavBar />
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="bg-white rounded-2xl shadow-lg border border-blue-200">
+          <div className="flex flex-col items-center px-6 py-6 border-b border-blue-200">
+            <button className="btn btn-ghost btn-sm btn-primary mr-auto text-primary hover:text-white transition rounded-lg"
+              onClick={()=>navigate(-1)}
+            >⬅ BACK</button>
+            <h2 className="text-3xl font-bold text-blue-900 text-center mb-6">
+              Trip Management
+              <div className="w-24 h-1 bg-blue-600 mx-auto mt-2"/>
+            </h2>
+            <div className="flex items-center gap-3">
+              <input type="date" className="input input-sm input-primary" value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)}/>
+              <button className="btn btn-primary w-fit rounded-lg" onClick={handleAdd} disabled={isButtonLoading}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  className="w-6 h-6 text-white "
                 >
-                  Yes
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  No
-                </button>
-              </div>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                  <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" strokeWidth="2" />
+                  <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="2" />
+                </svg>
+                New Trip</button>
             </div>
           </div>
-        )}
-      </div>
-    )
-  }
-
-  // Create Trip View
-  if (currentView === "create") {
-    return (
-      <div className="min-h-screen bg-gray-300">
-        {/* Header */}
-        <div className="bg-gray-200 border-b-2 border-gray-400">
-          <div className="flex items-center justify-between px-4 py-3">
-            <h1 className="text-xl font-bold text-gray-900">BTTS</h1>
-            <button
-              onClick={handleBackClick}
-              className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Form Content */}
-        <div className="p-8">
-          <div className="max-w-2xl mx-auto bg-gray-200 p-6 rounded-lg">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Left Column */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <label className="text-gray-900 font-medium w-20">TripID*</label>
-                  <select
-                    value={formData.tripId}
-                    onChange={(e) => handleInputChange("tripId", e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Trip ID</option>
-                    {tripIds.map((id) => (
-                      <option key={id} value={id}>
-                        {id}
-                      </option>
-                    ))}
-                  </select>
+          <div className="overflow-x-auto">
+            {/* Main Content */}
+            {
+              isPageLoading ? (
+                <div className="flex items-center justify-center p-10">
+                  <span className="loading loading-spinner text-primary loading-xl" />
                 </div>
-
-                <div className="flex items-center space-x-3">
-                  <label className="text-gray-900 font-medium w-20">Origin</label>
-                  <select
-                    value={formData.origin}
-                    onChange={(e) => handleInputChange("origin", e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Origin</option>
-                    <option value="South Bus Terminal">South Bus Terminal</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <label className="text-gray-900 font-medium w-20">Destination</label>
-                  <select
-                    value={formData.destination}
-                    onChange={(e) => handleInputChange("destination", e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Destination</option>
-                    {destinations.map((dest) => (
-                      <option key={dest} value={dest}>
-                        {dest}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <label className="text-gray-900 font-medium w-20">Operator</label>
-                  <select
-                    value={formData.operator}
-                    onChange={(e) => handleInputChange("operator", e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Operator</option>
-                    {operators.map((operator) => (
-                      <option key={operator} value={operator}>
-                        {operator}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <label className="text-gray-900 font-medium w-20">Bus Class</label>
-                  <select
-                    value={formData.busClass}
-                    onChange={(e) => handleInputChange("busClass", e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Class</option>
-                    {busClasses.map((busClass) => (
-                      <option key={busClass} value={busClass}>
-                        {busClass}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <label className="text-gray-900 font-medium w-20">Departure</label>
-                  <select
-                    value={formData.departure}
-                    onChange={(e) => handleInputChange("departure", e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Time</option>
-                    {departureTimes.map((time) => (
-                      <option key={time} value={time}>
-                        {time}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <label className="text-gray-900 font-medium w-20">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => handleInputChange("status", e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Status</option>
-                    {statuses.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <label className="text-gray-900 font-medium w-20">Seats</label>
-                  <select
-                    value={formData.seats}
-                    onChange={(e) => handleInputChange("seats", e.target.value)}
-                    className="flex-1 px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Seats</option>
-                    {seatOptions.map((seat) => (
-                      <option key={seat} value={seat}>
-                        {seat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Fare Field */}
-            <div className="mt-6 flex items-center justify-center space-x-3">
-              <label className="text-gray-900 font-medium">Fare</label>
-              <select
-                value={formData.fare}
-                onChange={(e) => handleInputChange("fare", e.target.value)}
-                className="px-3 py-2 bg-white rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Amount</option>
-                {amountOptions.map((amount) => (
-                  <option key={amount} value={amount}>
-                    {amount}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Create Trip Button */}
-            <div className="mt-8 bg-blue-400 p-4 rounded-lg">
-              <button
-                onClick={handleCreateTripSubmit}
-                className="w-full bg-white text-gray-900 py-3 px-6 rounded-full font-bold hover:bg-gray-100 transition-colors"
-              >
-                Create Trip
-              </button>
-            </div>
+              ) : (
+                trips && trips.length > 0 ? (
+                  // DISPLAYING ALL TRIPS
+                  <table className="table-auto w-full">
+                    <thead>
+                      <tr className="border-b border-blue-200 bg-blue-50">
+                        {
+                          tableHeaders.map((header, index)=>(
+                            <th key={index} className="p-4 text-left text-sm font-semibold text-blue-900 border-r border-blue-200">
+                              {header}
+                            </th>
+                          ))
+                        }
+                        
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        // DISPLAYING ALL TRIPS
+                        trips.map((trip) => (
+                          <tr key={trip?.id} className="border-b border-blue-100 hover:bg-blue-50 transition-colors">
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.id}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.routeDetails?.origin}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.routeDetails?.destination}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{formatDateTime(trip?.departureTime)}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">₱ {trip?.routeDetails?.basePrice}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.availableSeats} / {trip?.busDetails?.rowCount * trip?.busDetails?.columnCount}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.status}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100 w-auto">
+                              <div className="flex gap-2">
+                                <button className="btn btn-primary btn-outline rounded-lg"
+                                  onClick={()=>handleEdit(trip)} disabled={isButtonLoading}
+                                >Edit</button>
+                                <button className="btn btn-error btn-outline rounded-lg"
+                                  onClick={()=>handleDelete(trip?.id)} disabled={isButtonLoading}
+                                >Delete</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      }
+                    </tbody>
+                </table>
+                ) : (
+                  <div className="flex flex-col items-center p-10">
+                    <svg width="80px" height="80px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M19.5 12.5C19.5 11.12 20.62 10 22 10V9C22 5 21 4 17 4H7C3 4 2 5 2 9V9.5C3.38 9.5 4.5 10.62 4.5 12C4.5 13.38 3.38 14.5 2 14.5V15C2 19 3 20 7 20H17C21 20 22 19 22 15C20.62 15 19.5 13.88 19.5 12.5Z" stroke="#155dfc" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M10 4L10 20" stroke="#155dfc" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="5 5"></path> </g></svg>
+                    <h1 className="text-lg text-blue-400">No trips available</h1>
+                  </div>
+                )
+              )
+            }
           </div>
         </div>
       </div>
-    )
-  }
-
-  // Seat Selection View
-  if (currentView === "seats") {
-    return (
-      <div className="min-h-screen bg-gray-300">
-        {/* Header */}
-        <div className="bg-gray-200 border-b-2 border-gray-400">
-          <div className="flex items-center justify-between px-4 py-3">
-            <h1 className="text-xl font-bold text-gray-900">BTTS</h1>
-            <button
-              onClick={handleBackClick}
-              className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Title Bar */}
-        <div className="bg-blue-400 border-b-2 border-blue-600 py-4">
-          <h2 className="text-xl font-bold text-center text-gray-900 underline">Seat Selection</h2>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex p-8">
-          {/* Seat Grid */}
-          <div className="flex-1 flex justify-center">{renderSeatGrid()}</div>
-
-          {/* Right Panel */}
-          <div className="w-64 ml-8 space-y-6">
-            {/* Instructions */}
-            <div className="bg-gray-200 p-4 rounded border border-black">
-              <p className="text-sm text-gray-900 mb-2">
-                <strong>Lower numbers are closer to the front of the bus</strong>
-              </p>
-              <p className="text-sm text-gray-900">
-                <strong>Lower letters are closer to the left of the bus</strong>
-              </p>
-            </div>
-
-            {/* Selected Seat Info */}
-            {selectedSeat && (
-              <div className="bg-blue-100 p-4 rounded border border-blue-500">
-                <p className="text-sm text-blue-900 font-medium">
-                  Selected Seat: <strong>{selectedSeat}</strong>
-                </p>
-              </div>
-            )}
-
-            {/* Buttons */}
-            <div className="space-y-4">
-              <button
-                onClick={handleAddPassenger}
-                className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium"
-              >
-                Add Passenger
-              </button>
-              <button
-                onClick={handleRemovePassenger}
-                className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium"
-              >
-                Remove Passenger
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Remove Passenger Modal */}
-        {showRemovePassenger && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white border-2 border-black rounded-lg p-6 max-w-sm mx-4">
-              <p className="text-gray-900 font-medium mb-6 text-center">Remove Passenger?</p>
-              <div className="flex justify-center space-x-4">
-                <button
-                  onClick={confirmRemovePassenger}
-                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={() => setShowRemovePassenger(false)}
-                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  No
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  // Add Passenger View
-  if (currentView === "addPassenger") {
-    return (
-      <div className="min-h-screen bg-gray-300">
-        {/* Header */}
-        <div className="bg-gray-200 border-b-2 border-gray-400">
-          <div className="flex items-center justify-between px-4 py-3">
-            <h1 className="text-xl font-bold text-gray-900">BTTS</h1>
-            <button
-              onClick={handleBackClick}
-              className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Title Bar */}
-        <div className="bg-blue-400 border-b-2 border-blue-600 py-4">
-          <h2 className="text-xl font-bold text-center text-gray-900 underline">Add Passenger</h2>
-        </div>
-
-        {/* Main Content */}
-        <div className="p-8">
-          <div className="max-w-2xl mx-auto bg-white border-2 border-black">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-black">
-                  <th className="border-r border-black px-4 py-3 text-left font-bold">Username</th>
-                  <th className="border-r border-black px-4 py-3 text-left font-bold">Desired Seat</th>
-                  <th className="px-4 py-3 text-left font-bold">Payment Code</th>
-                </tr>
-              </thead>
-              <tbody>
-                {passengers.map((passenger, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-black cursor-pointer hover:bg-blue-100 transition-colors"
-                    onClick={() => handlePassengerSelect(passenger)}
-                  >
-                    <td className="border-r border-black px-4 py-3">{passenger.username}</td>
-                    <td className="border-r border-black px-4 py-3">{passenger.desiredSeat}</td>
-                    <td className="px-4 py-3">{passenger.paymentCode}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Approve Passenger Modal */}
-        {showApprovePassenger && selectedPassenger && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-gray-400 border-2 border-black rounded-lg p-6 max-w-sm mx-4">
-              <div className="text-center">
-                <p className="text-gray-900 font-medium mb-2">Payment meets Fare.</p>
-                <p className="text-gray-900 font-medium mb-2">Seat is available.</p>
-                <p className="text-gray-900 font-medium mb-6">Approve Passenger?</p>
-                <div className="flex justify-center space-x-4">
-                  <button
-                    onClick={handleApprovePassenger}
-                    className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => setShowApprovePassenger(false)}
-                    className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    No
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  return null
+      <TripModal trip={selectedTrip} loading={isButtonLoading} setLoading={setIsButtonLoading} fetchAllTrips={fetchAllTrips}/>
+    </div>
+  )
 }
-
-export default TripManagement

@@ -10,16 +10,18 @@ public class TripResponse {
   private TripStatus status;
   private BusDTO busDetails; // Nested DTO for bus details
   private RouteDTO routeDetails; // Nested DTO for route details
+  private Integer availableSeats;
 
   public TripResponse() {
   }
 
-  public TripResponse(Long id, LocalDateTime departureTime, TripStatus status, BusDTO busDetails, RouteDTO routeDetails) {
+  public TripResponse(Long id, LocalDateTime departureTime, TripStatus status, BusDTO busDetails, RouteDTO routeDetails, Integer availableSeats) {
     this.id = id;
     this.departureTime = departureTime;
     this.status = status;
     this.busDetails = busDetails;
     this.routeDetails = routeDetails;
+    this.availableSeats = availableSeats; 
   }
 
   // Getters and Setters
@@ -62,4 +64,8 @@ public class TripResponse {
   public void setRouteDetails(RouteDTO routeDetails) {
     this.routeDetails = routeDetails;
   }
+
+  public Integer getAvailableSeats() { return availableSeats; } // NEW GETTER
+  public void setAvailableSeats(Integer availableSeats) { this.availableSeats = availableSeats; } // NEW SETTER
+
 }
