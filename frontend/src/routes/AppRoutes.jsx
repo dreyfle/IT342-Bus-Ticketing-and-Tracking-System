@@ -13,11 +13,10 @@ import TransactionHistory from '../pages/TransactionHistory';
 import Transaction from '../pages/Transaction';
 import PaymentUpload from '../pages/PaymentUpload';
 import UserControl from '../pages/UserControl';
-import TripManagement from '../pages/TripManagement';
 import HomeRedirectRoute from './HomeRedirectRoute';
 import ProfilePage from '../pages/ProfilePage';
 import BusManagement from '../pages/BusManagement';
-import TripManagementFinal from '../pages/TripManagementFinal';
+import TripManagement from '../pages/TripManagement';
 
 
 export default function AppRoutes() {
@@ -48,7 +47,7 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute allowedRoles={['TRANSIT_ADMIN']} />}>
         <Route path="/admin-home" element={<AdminHomePage />} />
         <Route path="/bus-management" element={<BusManagement />} />
-        <Route path="/trip-management" element={<TripManagementFinal />} />
+        <Route path="/trip-management" element={<TripManagement />} />
         <Route path="/user-control" element={<UserControl />} />
       </Route>
 
