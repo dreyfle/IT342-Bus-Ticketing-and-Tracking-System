@@ -33,7 +33,7 @@ const AdminHomePage = () => {
 
             {/* Trip Management */}
             <div className="group cursor-pointer" onClick={()=>{navigate("/trip-management")}}>
-              <div className="bg-blue-600 hover:bg-blue-700 transition-colors rounded-xl p-6 text-center">
+              <div className="bg-blue-500 hover:bg-blue-600 transition-colors rounded-xl p-6 text-center">
                 <div className="flex justify-center mb-4">
                   <span className="text-white text-3xl" role="img" aria-label="route">
                     🗺️

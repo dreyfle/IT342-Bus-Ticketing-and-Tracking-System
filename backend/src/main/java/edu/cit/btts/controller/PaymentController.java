@@ -79,6 +79,13 @@ public class PaymentController {
     return ResponseEntity.ok(new ApiResponse(true, "Payments for ticket retrieved successfully.", payments)); 
   }
 
+  @GetMapping("/by-status")
+    @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF', 'PASSENGER')") // Passenger check is handled in service
+    public ResponseEntity<ApiResponse> getPaymentsByStatus(@RequestParam PaymentStatus status) {
+        List<PaymentResponse> payments = paymentService.getPaymentsByStatus(status);
+        return ResponseEntity.ok(new ApiResponse(true, "Payments with status " + status + " retrieved successfully.", payments));
+    }
+
   /**
    * Updates the status of a payment (e.g., from PENDING to APPROVED).
    * Accessible only by ADMIN and STAFF roles.

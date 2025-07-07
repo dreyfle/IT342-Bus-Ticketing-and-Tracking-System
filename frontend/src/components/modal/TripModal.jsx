@@ -90,8 +90,6 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
     const trip_payload = { departureTime, "busId": Number(busDetails?.id || selectedBusId), "routeDetails":route_payload }
     try {
       if (action === "ADD") {
-        console.log("Submit is Add");
-        console.log(trip_payload)
         const response = await api.post("/trips", trip_payload)
         alert(response?.data?.message)
       } else if (action === "EDIT") {
@@ -177,8 +175,8 @@ export default function TripModal({trip, loading, setLoading, fetchAllTrips}) {
                   {/* DESTINATION */}
                   <label className="label">Destination</label>
                   <input type="text" name="destination" required className="input input-primary input-sm" placeholder="Where the trip ends" onChange={handleRouteInputChange} value={routeInput?.destination || ""}/>
-                  {/* BASE PRICE */}
-                  <label className="label">Base Price</label>
+                  {/* BASE FARE */}
+                  <label className="label">Base Fare</label>
                   <input type="number" step="0.01" min="0" onInput={(value)=>{value = parseFloat(value).toFixed(2)}}
                     name="basePrice" required className="input input-primary input-sm" placeholder="Amount in Pesos" onChange={handleRouteInputChange} value={routeInput?.basePrice || ""}/>
                 </fieldset>

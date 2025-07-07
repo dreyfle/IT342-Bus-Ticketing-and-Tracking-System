@@ -579,7 +579,7 @@ const Transaction = () => {
 
             {/* Departure Date & Time */}
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700 flex items-center">
+              <label className="block text-sm font-bold text-gray-700 items-center">
                 <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -614,7 +614,7 @@ const Transaction = () => {
 
             {/* Amount Paid */}
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700 flex items-center">
+              <label className="block text-sm font-bold text-gray-700 items-center">
                 <svg className="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"

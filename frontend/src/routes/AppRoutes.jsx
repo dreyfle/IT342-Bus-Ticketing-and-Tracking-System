@@ -17,6 +17,7 @@ import HomeRedirectRoute from './HomeRedirectRoute';
 import ProfilePage from '../pages/ProfilePage';
 import BusManagement from '../pages/BusManagement';
 import TripManagement from '../pages/TripManagement';
+import StaffTicketBooking from '../pages/StaffTicketBooking';
 import UpdateRole from '../pages/UpdateRole';
 import EditUser from "../pages/EditUser"
 
@@ -43,6 +44,8 @@ export default function AppRoutes() {
       {/* Protected route for role: 'TICKET_STAFF' */}
       <Route element={<ProtectedRoute allowedRoles={['TICKET_STAFF']} />}>
         <Route path="/staff-home" element={<StaffHomePage />} />
+        <Route path="/staff-ticket-booking" element={<StaffTicketBooking />} />
+
       </Route>
 
       {/* Protected route for role: 'TRANSIT_ADMIN' */}
