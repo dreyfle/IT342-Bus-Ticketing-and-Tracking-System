@@ -2,7 +2,6 @@ package edu.cit.btts.controller;
 
 import edu.cit.btts.dto.ApiResponse;
 import edu.cit.btts.dto.SeatDTO;
-import edu.cit.btts.model.SeatStatus;
 import edu.cit.btts.service.SeatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize; // Assuming you have security
@@ -21,7 +20,7 @@ public class SeatController {
     }
 
     @GetMapping("/by-trip/{tripId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'PASSENGER')") // Adjust roles as needed
+    @PreAuthorize("hasAnyRole('TRANSIT_ADMIN', 'TICKET_STAFF', 'PASSENGER')") // Adjust roles as needed
     public ResponseEntity<ApiResponse> getSeatsByTripId(@PathVariable Long tripId) {
         List<SeatDTO> seats = seatService.getSeatsByTripId(tripId);
         return ResponseEntity.ok(new ApiResponse(true, "Seats for Trip ID " + tripId + " retrieved successfully.", seats));
