@@ -25,7 +25,7 @@ export const getAllUsers = async (token) => {
 
     const response = await axios.get(API_BASE, config)
 
-    console.log("✅ Success! Response:", response)
+   // console.log("✅ Success! Response:", response)
     return response
   } catch (error) {
     console.error("❌ API Error Details:")

@@ -229,15 +229,15 @@ const UserControl = () => {
             <div className="bg-white border-2 border-gray-800 rounded-lg p-4 shadow-lg">
               {/* User Info Header */}
               <div className="grid grid-cols-3 gap-4 mb-4 pb-2 border-b border-gray-300">
-                <div className="font-bold text-gray-900">Name</div>
-                <div className="font-bold text-gray-900">Email</div>
+                <div className="font-bold text-gray-700">Name</div>
+                <div className="font-bold text-gray-1100">Email</div>
                 <div className="font-bold text-gray-900">Role</div>
               </div>
 
               {/* User Info */}
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="text-gray-900">{`${selectedUser.firstName} ${selectedUser.lastName}`}</div>
-                <div className="text-gray-900 text-sm">{selectedUser.email}</div>
+                <div className="text-gray-700">{`${selectedUser.firstName} ${selectedUser.lastName}`}</div>
+                <div className="text-gray-1100 text-sm">{selectedUser.email}</div>
                 <div className="text-gray-900">{selectedUser.role}</div>
               </div>
 
