@@ -1,83 +1,66 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTransactions } from "../context/TransactionContext"
 import { formatDate } from "../utils/dateUtils" // Import formatDate function
-
+import axios from "axios"
 const TicketBooking = () => {
   const navigate = useNavigate()
-  const { transactions } = useTransactions()
   const [selectedDate, setSelectedDate] = useState("")
+  const [trips, setTrips] = useState([])
+  const [loading, setLoading] = useState(false)
   const [selectedTrip, setSelectedTrip] = useState(null)
   const [showSeatSelection, setShowSeatSelection] = useState(false)
 
-  // Generate trips for any date
-  const generateTripsForDate = (date) => {
-    const destinations = [
-      { name: "San Fernando", fare: 175, class: "Aircon" },
-      { name: "Naga", fare: 200, class: "Aircon" },
-      { name: "Toledo", fare: 225, class: "Ordinary" },
-      { name: "Oslob", fare: 275, class: "Aircon" },
-      { name: "Badian", fare: 250, class: "Aircon" },
-      { name: "Carcar", fare: 150, class: "Ordinary" },
-      { name: "Argao", fare: 180, class: "Aircon" },
-      { name: "Dalaguete", fare: 190, class: "Ordinary" },
-    ]
-
-    const times = ["6:30 AM", "8:00 AM", "10:30 AM", "1:15 PM", "3:45 PM", "6:00 PM"]
-    const statuses = ["SCHEDULED", "BOARDING", "DEPARTED", "CANCELLED"]
-
-    const trips = []
-    const selectedDateObj = new Date(date)
-    const today = new Date()
-
-    destinations.forEach((dest, destIndex) => {
-      times.forEach((time, timeIndex) => {
-        const tripId = `${Math.floor(Math.random() * 90000) + 10000}`
-        const totalSeats = 20
-        const bookedSeats = Math.floor(Math.random() * 15) // Random booked seats
-        const reservedSeats = Math.floor(Math.random() * 3) // Random reserved seats
-        const unavailableSeats = 2 // Driver seat + 1 broken seat
-        const availableSeats = totalSeats - bookedSeats - reservedSeats - unavailableSeats
-
-        // Determine status based on date and time
-        let status = "SCHEDULED"
-        let tripHour = Number.parseInt(time.split(":")[0]) // Use let instead of const
-        if (time.includes("PM") && tripHour !== 12) tripHour += 12
-        if (selectedDateObj < today) {
-          status = Math.random() > 0.8 ? "CANCELLED" : "DEPARTED"
-        } else if (selectedDateObj.toDateString() === today.toDateString()) {
-          const currentHour = new Date().getHours()
-          if (tripHour <= currentHour) {
-            status = Math.random() > 0.7 ? "BOARDING" : "DEPARTED"
-          }
-        }
-
-        trips.push({
-          tripId,
-          origin: "South Bus Terminal",
-          destination: dest.name,
-          busClass: dest.class,
-          departureDate: date,
-          departureTime: time,
-          status,
-          availableSeats: Math.max(0, availableSeats),
-          bookedSeats,
-          reservedSeats,
-          unavailableSeats,
-          totalSeats,
-          fare: `₱${dest.fare}.00`,
-        })
-      })
-    })
-
-    return trips.sort((a, b) => {
-      const timeA = new Date(`2000/01/01 ${a.departureTime}`)
-      const timeB = new Date(`2000/01/01 ${b.departureTime}`)
-      return timeA - timeB
-    })
+  // Fetch trips from API
+ // ...existing code...
+useEffect(() => {
+  console.log("Fetching trips for date:", selectedDate)
+  if (!selectedDate) {
+    setTrips([])
+    return
   }
+  setLoading(true)
+  axios.get('http://localhost:8080/api/trips',{
+   headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` // Assuming you store token in localStorage
+    },
+  })
+    .then((response) => {
+      const data = response.data
+      // Map API trips to UI trips
+      const mappedTrips = data.map((trip) => {
+        // Parse date and time from ISO string
+        const departure = new Date(trip.departureTime)
+        const departureDate = departure.toISOString().split("T")[0]
+        const departureTime = departure
+          .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
+
+        return {
+          tripId: trip.id || trip.tripId || trip._id || Math.random().toString(36).slice(2, 8),
+          origin: trip.routeDetails?.origin || "",
+          destination: trip.routeDetails?.destination || "",
+          busClass: trip.busDetails?.name || "",
+          departureDate,
+          departureTime,
+          status: trip.status,
+          availableSeats: trip.availableSeats ?? 20, 
+          bookedSeats: trip.bookedSeats ?? 0,
+          reservedSeats: trip.reservedSeats ?? 0,
+          unavailableSeats: 2,
+          totalSeats: (trip.busDetails?.rowCount || 5) * (trip.busDetails?.columnCount || 4),
+          fare: trip.routeDetails?.basePrice
+            ? `₱${trip.routeDetails.basePrice}.00`
+            : "₱0.00",
+        }
+      })
+      setTrips(mappedTrips)
+    })
+    .catch(() => setTrips([]))
+    .finally(() => setLoading(false))
+}, [selectedDate])
 
   const handleBackClick = () => {
     navigate("/passenger-home")
@@ -123,8 +106,11 @@ const TicketBooking = () => {
   }
 
   // Get trips for selected date
-  const filteredTrips = selectedDate ? generateTripsForDate(selectedDate) : []
-
+  const filteredTrips = selectedDate
+  ? trips.filter((trip) => trip.departureDate === selectedDate)
+  : []  
+  console.log("Filtered trips for date:", selectedDate, filteredTrips)
+  console.log("All trips:", trips)
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       {/* Seat Selection Modal */}
