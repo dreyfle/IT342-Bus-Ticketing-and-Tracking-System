@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import NavBar from "../components/NavBar"
 import { useNavigate } from "react-router-dom"
-import { formatDate } from "../utils/dateUtils"
+import { formatDateTime } from "../utils/dateUtils"
 import TripModal from "../components/modal/TripModal"
 import api from "../axiosConfig"
 
@@ -67,7 +67,7 @@ export default function TripManagementFinal() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       <NavBar />
-      <div className="max-w-7xl mx-auto w-fit px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="bg-white rounded-2xl shadow-lg border border-blue-200">
           <div className="flex flex-col items-center px-6 py-6 border-b border-blue-200">
             <button className="btn btn-ghost btn-sm btn-primary mr-auto text-primary hover:text-white transition rounded-lg"
@@ -104,7 +104,7 @@ export default function TripManagementFinal() {
               ) : (
                 trips && trips.length > 0 ? (
                   // DISPLAYING ALL TRIPS
-                  <table className="table-auto">
+                  <table className="table-auto w-full">
                     <thead>
                       <tr className="border-b border-blue-200 bg-blue-50">
                         {
@@ -125,7 +125,7 @@ export default function TripManagementFinal() {
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.id}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.routeDetails?.origin}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.routeDetails?.destination}</td>
-                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{formatDate(trip?.departureTime)}</td>
+                            <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{formatDateTime(trip?.departureTime)}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">₱ {trip?.routeDetails?.basePrice}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.availableSeats} / {trip?.busDetails?.rowCount * trip?.busDetails?.columnCount}</td>
                             <td className="px-4 py-4 text-sm text-blue-900 border-r border-blue-100">{trip?.status}</td>
