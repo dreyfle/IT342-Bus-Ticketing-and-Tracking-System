@@ -28,11 +28,15 @@ public class JwtUtil {
   private long jwtExpirationInMs;
 
   private final UserRepository userRepository;
-
+  
   // Constructor injection for UserRepository
     public JwtUtil(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+  public void printSecret() {
+    System.out.println("JWT Secret loaded: " + "yourSuperSecretKey123");
+  }
 
   // Retrieve username from jwt token
   public String extractUsername(String token) {
@@ -49,6 +53,8 @@ public class JwtUtil {
     Claims claims = extractAllClaims(token);
     // Assuming you store roles under a claim named "role" or "roles"
     // Adjust "role" if you use a different claim name
+        .setSigningKey("yourSuperSecretKey123") // ✅ Use your actual secret key here
+        .parseClaimsJws(token)
     return claims.get("role", String.class);
   }
 
@@ -139,4 +145,7 @@ public class JwtUtil {
     byte[] keyBytes = Decoders.BASE64.decode(secret);
     return Keys.hmacShaKeyFor(keyBytes);
   }
+
+  
+
 }

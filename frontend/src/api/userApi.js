@@ -16,14 +16,14 @@ export const getAllUsers = async (token) => {
       headers: {
         "Content-Type": "application/json",
         // Comment out authorization for testing
-        // Authorization: `Bearer ${token}`,
+         //Authorization: `Bearer ${token}`,
       },
     }
 
     /*console.log("📋 Request config:", config)
     console.log("🎯 Making request to:", API_BASE)*/
 
-    const response = await axios.get(API_BASE, config)
+    const response = await api.get(API_BASE, config)
 
    // console.log("✅ Success! Response:", response)
     return response

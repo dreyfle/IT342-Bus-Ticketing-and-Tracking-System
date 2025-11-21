@@ -28,45 +28,61 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-					throws ServletException, IOException {
+protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+        throws ServletException, IOException {
 
-		final String requestTokenHeader = request.getHeader("Authorization");
+    final String requestTokenHeader = request.getHeader("Authorization");
 
-		String username = null;
-		String jwtToken = null;
+    String username = null;
+    String jwtToken = null;
 
-		// JWT Token is in the form "Bearer token". Remove Bearer word and get only the Token
-		if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-			jwtToken = requestTokenHeader.substring(7);
-			try {
-				username = jwtUtil.extractUsername(jwtToken);
-			} catch (IllegalArgumentException e) {
-				System.out.println("Unable to get JWT Token");
-			} catch (ExpiredJwtException e) {
-				System.out.println("JWT Token has expired");
-			}
-		} else {
-			logger.warn("JWT Token does not begin with Bearer String");
-		}
 
-		// Once we get the token validate it.
-		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				System.out.println("Authorization Header: " + requestTokenHeader);
+				System.out.println("Extracted Token: " + jwtToken);
+				System.out.println("Extracted Username: " + username);
+	
+    // 🔍 Log the raw header
+    System.out.println("Authorization Header: " + requestTokenHeader);
 
-			UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
+    if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+        jwtToken = requestTokenHeader.substring(7);
 
-			// if token is valid configure Spring Security to manually set authentication
-			if (jwtUtil.validateToken(jwtToken, userDetails)) {
+        // 🔍 Log the extracted token
+        System.out.println("Extracted Token: " + jwtToken);
 
-				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-								userDetails, null, userDetails.getAuthorities());
-				usernamePasswordAuthenticationToken
-								.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				// After setting the Authentication in the Context, we specify that the current user is authenticated.
-				// So it passes the Spring Security Configurations successfully.
-				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-			}
-		}
-		chain.doFilter(request, response);
+        try {
+            username = jwtUtil.extractUsername(jwtToken);
+
+            // 🔍 Log the extracted username
+            System.out.println("Extracted Username: " + username);
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Unable to get JWT Token");
+        } catch (ExpiredJwtException e) {
+            System.out.println("JWT Token has expired");
+        }
+    } else {
+        logger.warn("JWT Token does not begin with Bearer String");
+    }
+
+    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
+
+        // 🔍 Log the loaded user
+        System.out.println("UserDetails loaded: " + userDetails.getUsername());
+
+        if (jwtUtil.validateToken(jwtToken, userDetails)) {
+            System.out.println("Token is valid ✅");
+
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        } else {
+            System.out.println("Token is invalid ❌");
+        }
+    }
+
+    chain.doFilter(request, response);
 	}
 }
